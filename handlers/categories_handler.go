@@ -42,9 +42,7 @@ func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 		return
 	}
 	response := JsonResponse{
-		Header: http.Header{
-			"Content-Type": {"application/json"}},
-		Payload: Response{
+			Payload: Response{
 			Data: categories,
 			Meta: map[string]interface{}{
 				"pagination": map[string]int{
@@ -82,7 +80,7 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 			},
 		},
 	}
-	sendJsonResponse(response, http.StatusOK, w)
+    sendJsonResponse(response, http.StatusOK, w)
 }
 
 func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http.Request) {
@@ -97,9 +95,6 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 	err := json.NewDecoder(r.Body).Decode(&category)
 	if err != nil {
 		jsonError := JsonResponseError{
-			Header: http.Header{
-				"Content-Type": {"application/json"},
-			},
 			Payload: ResponseError{
 				Error: "Verifique o formato do JSON e tente novamente.",
 			},
@@ -111,9 +106,6 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		if errors.Is(err, errorsApi.ErrNomeCategoriaObrigatorio) || errors.Is(err, errorsApi.ErrDescricaoCategoriaObrigatorio) {
 			jsonError := JsonResponseError{
-				Header: http.Header{
-					"Content-Type": {"application/json"},
-				},
 				Payload: ResponseError{
 					Error: err.Error(),
 				},
