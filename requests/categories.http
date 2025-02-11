@@ -1,0 +1,49 @@
+@apirul = http://localhost:8080
+@id = "06332609-b6db-42bb-bc47-5a1b2dfa2b6c"
+
+GET {{apirul}}/categories HTTP/1.1
+
+### 
+GET {{apirul}}/categories?active=0 HTTP/1.1
+
+###
+
+GET {{apirul}}/categories?page=1&limit=3&active=1 HTTP/1.1
+
+###
+
+GET {{apirul}}/categories/{{id}} HTTP/1.1
+
+###
+
+POST {{apirul}}/categories HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer ACCESS-TOKEN
+
+{
+    "name": "New Categoryesss",
+    "description": "Novamente um test!",
+    "active": true,
+    "created_at": "2025-02-08",
+    "updated_at": "2025-02-08"
+}
+
+###
+
+POST {{apirul}}/categories/_delete HTTP/1.1
+
+###
+
+GET {{apirul}}/categories/1/products HTTP/1.1
+
+###
+
+PUT {{apirul}}/categories/1 HTTP/1.1
+
+###
+
+PATCH {{apirul}}/categories/1 HTTP/1.1
+
+###
+
+DELETE {{apirul}}/categories/1 HTTP/1.1

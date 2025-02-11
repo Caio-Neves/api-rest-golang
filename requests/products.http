@@ -1,0 +1,24 @@
+@apirul = http://localhost:8080
+@id = 1
+
+GET {{apirul}}/products HTTP/1.1
+
+###
+
+GET {{apirul}}/products/{{id}} HTTP/1.1
+
+###
+
+POST {{apirul}}/products HTTP/1.1
+
+###
+
+POST {{apirul}}/products/_delete HTTP/1.1
+
+###
+
+PUT {{apirul}}/products/{{id}} HTTP/1.1
+
+###
+
+DELETE {{apirul}}/products/{{id}} HTTP/1.1

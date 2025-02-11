@@ -1,0 +1,95 @@
+2025/02/08 09:28:47 Setup lumberjack logger
+2025/02/08 09:28:47 ecomm
+2025/02/08 09:28:47 localhost
+2025/02/08 09:28:47 postgres
+2025/02/08 09:28:47 macaco123
+2025/02/08 09:28:47 5432
+2025/02/08 09:31:15 Setup lumberjack logger
+2025/02/08 09:31:15 ecomm
+2025/02/08 09:31:15 localhost
+2025/02/08 09:31:15 postgres
+2025/02/08 09:31:15 macaco123
+2025/02/08 09:31:15 5432
+2025/02/08 09:31:25 Erro ao decodificar
+2025/02/08 09:58:40 Setup lumberjack logger
+2025/02/08 09:58:40 ecomm
+2025/02/08 09:58:40 localhost
+2025/02/08 09:58:40 postgres
+2025/02/08 09:58:40 macaco123
+2025/02/08 09:58:40 5432
+2025/02/10 21:53:51 Setup lumberjack logger
+2025/02/10 21:53:51 ecomm
+2025/02/10 21:53:51 localhost
+2025/02/10 21:53:51 postgres
+2025/02/10 21:53:51 macaco123
+2025/02/10 21:53:51 5432
+2025/02/10 21:55:50 Setup lumberjack logger
+2025/02/10 21:55:50 ecomm
+2025/02/10 21:55:50 localhost
+2025/02/10 21:55:50 postgres
+2025/02/10 21:55:50 macaco123
+2025/02/10 21:55:50 5432
+2025/02/10 21:56:20 Setup lumberjack logger
+2025/02/10 21:56:20 ecomm
+2025/02/10 21:56:20 localhost
+2025/02/10 21:56:20 postgres
+2025/02/10 21:56:20 macaco123
+2025/02/10 21:56:20 5432
+2025/02/10 21:58:26 Setup lumberjack logger
+2025/02/10 21:58:26 ecomm
+2025/02/10 21:58:26 localhost
+2025/02/10 21:58:26 postgres
+2025/02/10 21:58:26 macaco123
+2025/02/10 21:58:26 5432
+2025/02/10 21:58:34 invalid character '}' looking for beginning of object key string
+2025/02/10 21:59:29 parsing time "2025-02-08" as "2006-01-02T15:04:05Z07:00": cannot parse "" as "T"
+2025/02/10 22:01:45 Setup lumberjack logger
+2025/02/10 22:01:45 ecomm
+2025/02/10 22:01:45 localhost
+2025/02/10 22:01:45 postgres
+2025/02/10 22:01:45 macaco123
+2025/02/10 22:01:45 5432
+2025/02/10 22:02:35 Setup lumberjack logger
+2025/02/10 22:02:35 ecomm
+2025/02/10 22:02:35 localhost
+2025/02/10 22:02:35 postgres
+2025/02/10 22:02:35 macaco123
+2025/02/10 22:02:35 5432
+2025/02/10 22:02:48 pq: sintaxe de entrada é inválida para tipo integer: "true"
+2025/02/10 22:05:36 Setup lumberjack logger
+2025/02/10 22:05:36 ecomm
+2025/02/10 22:05:36 localhost
+2025/02/10 22:05:36 postgres
+2025/02/10 22:05:36 macaco123
+2025/02/10 22:05:36 5432
+2025/02/10 22:06:54 Setup lumberjack logger
+2025/02/10 22:06:54 ecomm
+2025/02/10 22:06:54 localhost
+2025/02/10 22:06:54 postgres
+2025/02/10 22:06:54 macaco123
+2025/02/10 22:06:54 5432
+2025/02/10 22:09:22 []
+2025/02/10 22:09:22 SELECT id, name, description, active, created_at, updated_at FROM categories LIMIT 10 OFFSET 0
+2025/02/10 22:09:28 [0]
+2025/02/10 22:09:28 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE active = $1 LIMIT 10 OFFSET 0
+2025/02/10 22:10:46 Setup lumberjack logger
+2025/02/10 22:10:46 ecomm
+2025/02/10 22:10:46 localhost
+2025/02/10 22:10:46 postgres
+2025/02/10 22:10:46 macaco123
+2025/02/10 22:10:46 5432
+2025/02/10 22:10:49 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
+2025/02/10 22:10:49 [06332609-b6db-42bb-bc47-5a1b2dfa2b6c]
+2025/02/10 22:10:49 06332609-b6db-42bb-bc47-5a1b2dfa2b6c
+2025/02/10 22:11:00 [0]
+2025/02/10 22:11:00 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE active = $1 LIMIT 10 OFFSET 0
+2025/02/10 22:11:36 Setup lumberjack logger
+2025/02/10 22:11:36 ecomm
+2025/02/10 22:11:36 localhost
+2025/02/10 22:11:36 postgres
+2025/02/10 22:11:36 macaco123
+2025/02/10 22:11:36 5432
+2025/02/10 22:11:40 []
+2025/02/10 22:11:40 SELECT id, name, description, active, created_at, updated_at FROM categories LIMIT 10 OFFSET 0
+2025/02/10 22:11:48 [0]
+2025/02/10 22:11:48 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE active = $1 LIMIT 10 OFFSET 0

@@ -1,0 +1,16 @@
+Logs = "C:/Users/Neves/OneDrive/Área de Trabalho/API-RESTful/Logs"
+
+[sqlServerDatabase]
+    user = "mydb"
+    pass = "macaco123"
+    port = "1433"
+    database = "ecomm"
+    dbServer = "Caio/SQLEXPRESS"
+
+[postgresServerDatabase]
+    user = "postgres"
+    pass = "macaco123"
+    port = "5432"
+    database = "ecomm"
+    host = "localhost"
+
