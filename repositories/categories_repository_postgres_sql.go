@@ -6,9 +6,10 @@ import (
 	"log"
 	"rest-api-example/entities"
 	"strconv"
-	"strings"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type CategoryRepositoryPostgres struct {
@@ -71,10 +72,9 @@ func (r CategoryRepositoryPostgres) GetAllCategories(ctx context.Context, params
 	return categories, nil
 }
 
-func (r CategoryRepositoryPostgres) GetCategoryById(ctx context.Context, id string) (entities.Category, error) {
+func (r CategoryRepositoryPostgres) GetCategoryById(ctx context.Context, id uuid.UUID) (entities.Category, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	categorySql := psql.Select("id", "name", "description", "active", "created_at", "updated_at").From("categories")
-	id = strings.Trim(id, `"'`)
 	categorySql = categorySql.Where("id = ?", id)
 
 	query, args, err := categorySql.ToSql()
@@ -111,4 +111,32 @@ func (r CategoryRepositoryPostgres) CreateCategory(ctx context.Context, category
 		return entities.Category{}, err
 	}
 	return category, nil
+}
+
+func (r CategoryRepositoryPostgres) DeleteCategoryById(ctx context.Context, id uuid.UUID) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	deleteSql := psql.Delete("categories").Where("id = ?", id)
+	query, args, err := deleteSql.ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r CategoryRepositoryPostgres) DeleteCategories(ctx context.Context, ids []uuid.UUID) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	deleteSql := psql.Delete("categories").Where("id = any(?)", pq.Array(ids))
+	query, args, err := deleteSql.ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -42,7 +43,7 @@ func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 		return
 	}
 	response := JsonResponse{
-			Payload: Response{
+		Payload: Response{
 			Data: categories,
 			Meta: map[string]interface{}{
 				"pagination": map[string]int{
@@ -61,7 +62,18 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 	defer cancel()
 
 	vars := mux.Vars(r)
-	category, err := h.categoryService.GetCategoryById(ctx, vars["id"])
+	idString := vars["id"]
+	id, err := uuid.Parse(idString)
+	if err != nil {
+		sendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: errorsApi.ErrUuidInvalido.Error(),
+			},
+		}, http.StatusBadRequest, w)
+
+		return
+	}
+	category, err := h.categoryService.GetCategoryById(ctx, id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -80,7 +92,7 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 			},
 		},
 	}
-    sendJsonResponse(response, http.StatusOK, w)
+	sendJsonResponse(response, http.StatusOK, w)
 }
 
 func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http.Request) {
@@ -130,16 +142,78 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 	sendJsonResponse(response, http.StatusCreated, w)
 }
 
-func (h CategoryHandler) DeleteCategories(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Endpoint: DeleteCategories"))
-}
-
 func (h CategoryHandler) UpdateCategories(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Endpoint: UpdateCategories"))
 }
 
 func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Endpoint: DeleteCategoryById"))
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	defer cancel()
+
+	vars := mux.Vars(r)
+	idString := vars["id"]
+	id, err := uuid.Parse(idString)
+	if err != nil {
+		sendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: errorsApi.ErrUuidInvalido.Error(),
+			},
+		}, http.StatusBadRequest, w)
+		return
+	}
+	err = h.categoryService.DeleteCategoryById(ctx, id)
+	if err != nil {
+		switch err {
+		case errorsApi.ErrCategoriaNaoCadastrada:
+			jsonError := JsonResponseError{
+				Payload: ResponseError{
+					Error: "Categoria não cadastrada.",
+				},
+			}
+			sendJsonError(jsonError, http.StatusBadRequest, w)
+			return
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h CategoryHandler) DeleteCategories(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	defer cancel()
+
+	var idsString []string
+	err := json.NewDecoder(r.Body).Decode(&idsString)
+	if err != nil {
+		jsonError := JsonResponseError{
+			Payload: ResponseError{
+				Error: "Verifique o formato do JSON e tente novamente.",
+			},
+		}
+		sendJsonError(jsonError, http.StatusBadRequest, w)
+		return
+	}
+	var ids []uuid.UUID
+	for _, idString := range idsString {
+		id, err := uuid.Parse(idString)
+		if err != nil {
+			sendJsonError(JsonResponseError{
+				Payload: ResponseError{
+					Error: errorsApi.ErrUuidInvalido.Error(),
+				},
+			}, http.StatusBadRequest, w)
+			return
+		}
+		ids = append(ids, id)
+	}
+	err = h.categoryService.DeleteCategories(ctx, ids)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func getQueryInt(query url.Values, key string, defaultValue int) int {

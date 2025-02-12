@@ -26,7 +26,7 @@ func (s *CategoryService) GetAllCategories(ctx context.Context, params map[strin
 	return categories, nil
 }
 
-func (s *CategoryService) GetCategoryById(ctx context.Context, id string) (entities.Category, error) {
+func (s *CategoryService) GetCategoryById(ctx context.Context, id uuid.UUID) (entities.Category, error) {
 	category, err := s.categoryRepository.GetCategoryById(ctx, id)
 	if err != nil {
 		return entities.Category{}, err
@@ -48,4 +48,27 @@ func (s *CategoryService) CreateCategory(ctx context.Context, category entities.
 		return entities.Category{}, err
 	}
 	return category, nil
+}
+
+func (s *CategoryService) DeleteCategoryById(ctx context.Context, id uuid.UUID) error {
+	category, err := s.categoryRepository.GetCategoryById(ctx, id)
+	if err != nil {
+		return err
+	}
+	if category.IsEmpty() {
+		return errors.ErrCategoriaNaoCadastrada
+	}
+	err = s.categoryRepository.DeleteCategoryById(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *CategoryService) DeleteCategories(ctx context.Context, ids []uuid.UUID) error {
+	err := s.categoryRepository.DeleteCategories(ctx, ids)
+	if err != nil {
+		return err
+	}
+	return nil
 }

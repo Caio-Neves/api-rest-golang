@@ -8,12 +8,12 @@ import (
 
 type CategoryInterface interface {
 	GetAllCategories(ctx context.Context, params map[string][]string) ([]Category, error)
-	GetCategoryById(ctx context.Context, id string) (Category, error)
-	// GetAllProductsByCategory
+	GetCategoryById(ctx context.Context, id uuid.UUID) (Category, error)
 	CreateCategory(ctx context.Context, category Category) (Category, error)
-	// DeleteCategories
+	DeleteCategoryById(ctx context.Context, id uuid.UUID) error
+	DeleteCategories(ctx context.Context, ids []uuid.UUID) error
+	// GetAllProductsByCategory
 	// UpdateCategories
-	// DeleteCategoryById
 }
 
 type Category struct {
