@@ -7,10 +7,12 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"reflect"
 	"rest-api-example/entities"
 	errorsApi "rest-api-example/errors"
 	"rest-api-example/service"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,13 +20,25 @@ import (
 )
 
 type CategoryHandler struct {
-	categoryService *service.CategoryService
+	categoryService     *service.CategoryService
+	SupportedMediaTypes map[string]struct{}
 }
 
 func NewCategoryHandler(s *service.CategoryService) *CategoryHandler {
 	return &CategoryHandler{
 		categoryService: s,
+		SupportedMediaTypes: map[string]struct{}{
+			"application/json": {},
+		},
 	}
+}
+
+func (h CategoryHandler) getArraySupportedMediaTypes() []string {
+	var mediaTypes []string
+	for key := range h.SupportedMediaTypes {
+		mediaTypes = append(mediaTypes, key)
+	}
+	return mediaTypes
 }
 
 func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +68,7 @@ func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 			},
 		},
 	}
-	sendJsonResponse(response, http.StatusOK, w)
+	SendJsonResponse(response, http.StatusOK, w)
 }
 
 func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
@@ -65,12 +79,11 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 	idString := vars["id"]
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		sendJsonError(JsonResponseError{
+		SendJsonError(JsonResponseError{
 			Payload: ResponseError{
 				Error: errorsApi.ErrUuidInvalido.Error(),
 			},
 		}, http.StatusBadRequest, w)
-
 		return
 	}
 	category, err := h.categoryService.GetCategoryById(ctx, id)
@@ -92,7 +105,7 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 			},
 		},
 	}
-	sendJsonResponse(response, http.StatusOK, w)
+	SendJsonResponse(response, http.StatusOK, w)
 }
 
 func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http.Request) {
@@ -106,23 +119,21 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 	var category entities.Category
 	err := json.NewDecoder(r.Body).Decode(&category)
 	if err != nil {
-		jsonError := JsonResponseError{
+		SendJsonError(JsonResponseError{
 			Payload: ResponseError{
 				Error: "Verifique o formato do JSON e tente novamente.",
 			},
-		}
-		sendJsonError(jsonError, http.StatusBadRequest, w)
+		}, http.StatusBadRequest, w)
 		return
 	}
 	category, err = h.categoryService.CreateCategory(ctx, category)
 	if err != nil {
 		if errors.Is(err, errorsApi.ErrNomeCategoriaObrigatorio) || errors.Is(err, errorsApi.ErrDescricaoCategoriaObrigatorio) {
-			jsonError := JsonResponseError{
+			SendJsonError(JsonResponseError{
 				Payload: ResponseError{
 					Error: err.Error(),
 				},
-			}
-			sendJsonError(jsonError, http.StatusBadRequest, w)
+			}, http.StatusBadRequest, w)
 			return
 		}
 		log.Println(err)
@@ -139,11 +150,7 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 			},
 		},
 	}
-	sendJsonResponse(response, http.StatusCreated, w)
-}
-
-func (h CategoryHandler) UpdateCategories(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Endpoint: UpdateCategories"))
+	SendJsonResponse(response, http.StatusCreated, w)
 }
 
 func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +161,7 @@ func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Reque
 	idString := vars["id"]
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		sendJsonError(JsonResponseError{
+		SendJsonError(JsonResponseError{
 			Payload: ResponseError{
 				Error: errorsApi.ErrUuidInvalido.Error(),
 			},
@@ -165,12 +172,11 @@ func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		switch err {
 		case errorsApi.ErrCategoriaNaoCadastrada:
-			jsonError := JsonResponseError{
+			SendJsonError(JsonResponseError{
 				Payload: ResponseError{
 					Error: "Categoria não cadastrada.",
 				},
-			}
-			sendJsonError(jsonError, http.StatusBadRequest, w)
+			}, http.StatusBadRequest, w)
 			return
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
@@ -184,22 +190,31 @@ func (h CategoryHandler) DeleteCategories(w http.ResponseWriter, r *http.Request
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
 
+	if _, exists := h.SupportedMediaTypes[r.Header.Get("Content-Type")]; !exists {
+		SendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error:               "Formato inválido",
+				SupportedMediaTypes: h.getArraySupportedMediaTypes(),
+			},
+		}, http.StatusUnsupportedMediaType, w)
+		return
+	}
+
 	var idsString []string
 	err := json.NewDecoder(r.Body).Decode(&idsString)
 	if err != nil {
-		jsonError := JsonResponseError{
+		SendJsonError(JsonResponseError{
 			Payload: ResponseError{
 				Error: "Verifique o formato do JSON e tente novamente.",
 			},
-		}
-		sendJsonError(jsonError, http.StatusBadRequest, w)
+		}, http.StatusBadRequest, w)
 		return
 	}
 	var ids []uuid.UUID
 	for _, idString := range idsString {
 		id, err := uuid.Parse(idString)
 		if err != nil {
-			sendJsonError(JsonResponseError{
+			SendJsonError(JsonResponseError{
 				Payload: ResponseError{
 					Error: errorsApi.ErrUuidInvalido.Error(),
 				},
@@ -216,6 +231,49 @@ func (h CategoryHandler) DeleteCategories(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (h CategoryHandler) UpdateCategoryFields(w http.ResponseWriter, r *http.Request) {
+	_, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	defer cancel()
+
+	vars := mux.Vars(r)
+	idString := vars["id"]
+	_, err := uuid.Parse(idString)
+	if err != nil {
+		SendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: errorsApi.ErrUuidInvalido.Error(),
+			},
+		}, http.StatusBadRequest, w)
+		return
+	}
+	var jsonBody map[string]interface{}
+	err = json.NewDecoder(r.Body).Decode(&jsonBody)
+	if err != nil {
+		SendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: "Verifique o formato do JSON e tente novamente.",
+			},
+		}, http.StatusBadRequest, w)
+		return
+	}
+	category := entities.Category{}
+	unknownFields, err := ValidateJSONFields(jsonBody, &category)
+	if err != nil {
+		if errors.Is(err, errorsApi.ErrAtributoNaoExistente) {
+			SendJsonError(JsonResponseError{
+				Payload: ResponseError{
+					Error:         err.Error(),
+					UnknownFields: unknownFields,
+				},
+			}, http.StatusBadRequest, w)
+			return
+		}
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
 func getQueryInt(query url.Values, key string, defaultValue int) int {
 	if value := query.Get(key); value != "" {
 		if intValue, err := strconv.Atoi(value); err == nil {
@@ -223,4 +281,34 @@ func getQueryInt(query url.Values, key string, defaultValue int) int {
 		}
 	}
 	return defaultValue
+}
+
+func ValidateJSONFields(jsonMap map[string]interface{}, genStruct interface{}) ([]string, error) {
+	structVal := reflect.ValueOf(genStruct)
+	if structVal.Kind() != reflect.Ptr || structVal.IsNil() {
+		return nil, errors.New("genStruct deve ser um ponteiro para uma struct")
+	}
+	structVal = structVal.Elem()
+	if structVal.Kind() != reflect.Struct {
+		return nil, errors.New("genStruct deve ser uma struct")
+	}
+	structType := structVal.Type()
+	var unknownFields []string
+	for key := range jsonMap {
+		fieldFound := false
+		for i := 0; i < structVal.NumField(); i++ {
+			tag := structType.Field(i).Tag.Get("json")
+			if strings.EqualFold(key, tag) {
+				fieldFound = true
+				break
+			}
+		}
+		if !fieldFound {
+			unknownFields = append(unknownFields, key)
+		}
+	}
+	if len(unknownFields) > 0 {
+		return unknownFields, errorsApi.ErrAtributoNaoExistente
+	}
+	return nil, nil
 }

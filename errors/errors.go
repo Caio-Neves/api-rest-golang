@@ -12,5 +12,6 @@ var (
 
 //erros específicos
 var (
-	ErrUuidInvalido = errors.New("uuid inválido")
+	ErrUuidInvalido         = errors.New("uuid inválido")
+	ErrAtributoNaoExistente = errors.New("atributo não existente para atualização")
 )

@@ -17,7 +17,9 @@ type JsonResponse struct {
 }
 
 type ResponseError struct {
-	Error interface{} `json:"error"`
+	Error               interface{} `json:"error"`
+	SupportedMediaTypes []string    `json:"supported_formats,omitempty"`
+	UnknownFields       []string    `json:"unknown_fields"`
 }
 
 type JsonResponseError struct {
@@ -25,7 +27,7 @@ type JsonResponseError struct {
 	Payload ResponseError
 }
 
-func sendJsonResponse(jsonResponse JsonResponse, httpStatusCode int, w http.ResponseWriter) {
+func SendJsonResponse(jsonResponse JsonResponse, httpStatusCode int, w http.ResponseWriter) {
 	for key, values := range jsonResponse.Header {
 		for _, value := range values {
 			w.Header().Set(key, value)
@@ -40,7 +42,7 @@ func sendJsonResponse(jsonResponse JsonResponse, httpStatusCode int, w http.Resp
 	}
 }
 
-func sendJsonError(jsonResponseError JsonResponseError, httpStatusCode int, w http.ResponseWriter) {
+func SendJsonError(jsonResponseError JsonResponseError, httpStatusCode int, w http.ResponseWriter) {
 	for key, values := range jsonResponseError.Header {
 		for _, value := range values {
 			w.Header().Set(key, value)
