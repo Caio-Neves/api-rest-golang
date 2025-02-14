@@ -140,3 +140,25 @@ func (r CategoryRepositoryPostgres) DeleteCategories(ctx context.Context, ids []
 	}
 	return nil
 }
+
+func (r CategoryRepositoryPostgres) UpdateCategoryFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (entities.Category, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	updateSql := psql.Update("categories")
+	for key, value := range fields {
+		updateSql = updateSql.Set(key, value)
+	}
+	updateSql = updateSql.Where("id = ?", id)
+	query, args, err := updateSql.ToSql()
+	if err != nil {
+		return entities.Category{}, err
+	}
+	_, err = r.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return entities.Category{}, err
+	}
+	category, err := r.GetCategoryById(ctx, id)
+	if err != nil {
+		return entities.Category{}, nil
+	}
+	return category, nil
+}

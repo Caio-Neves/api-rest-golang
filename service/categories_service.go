@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 	"rest-api-example/entities"
 	"rest-api-example/errors"
 
@@ -71,4 +72,13 @@ func (s *CategoryService) DeleteCategories(ctx context.Context, ids []uuid.UUID)
 		return err
 	}
 	return nil
+}
+
+func (s *CategoryService) UpdateCategoryFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (entities.Category, error) {
+	category, err := s.categoryRepository.UpdateCategoryFields(ctx, id, fields)
+	if err != nil {
+		log.Println(err)
+		return entities.Category{}, err
+	}
+	return category, nil
 }

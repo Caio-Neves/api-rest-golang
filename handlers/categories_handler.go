@@ -7,12 +7,10 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"reflect"
 	"rest-api-example/entities"
 	errorsApi "rest-api-example/errors"
 	"rest-api-example/service"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -232,12 +230,12 @@ func (h CategoryHandler) DeleteCategories(w http.ResponseWriter, r *http.Request
 }
 
 func (h CategoryHandler) UpdateCategoryFields(w http.ResponseWriter, r *http.Request) {
-	_, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
 
 	vars := mux.Vars(r)
 	idString := vars["id"]
-	_, err := uuid.Parse(idString)
+	id, err := uuid.Parse(idString)
 	if err != nil {
 		SendJsonError(JsonResponseError{
 			Payload: ResponseError{
@@ -272,6 +270,22 @@ func (h CategoryHandler) UpdateCategoryFields(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	category, err = h.categoryService.UpdateCategoryFields(ctx, id, jsonBody)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	SendJsonResponse(JsonResponse{
+		Payload: Response{
+			Data: category,
+			Meta: map[string]interface{}{
+				"fieldsUpdated": map[string]interface{}{
+					"total": len(jsonBody),
+				},
+			},
+		},
+	}, http.StatusOK, w)
 }
 
 func getQueryInt(query url.Values, key string, defaultValue int) int {
@@ -281,34 +295,4 @@ func getQueryInt(query url.Values, key string, defaultValue int) int {
 		}
 	}
 	return defaultValue
-}
-
-func ValidateJSONFields(jsonMap map[string]interface{}, genStruct interface{}) ([]string, error) {
-	structVal := reflect.ValueOf(genStruct)
-	if structVal.Kind() != reflect.Ptr || structVal.IsNil() {
-		return nil, errors.New("genStruct deve ser um ponteiro para uma struct")
-	}
-	structVal = structVal.Elem()
-	if structVal.Kind() != reflect.Struct {
-		return nil, errors.New("genStruct deve ser uma struct")
-	}
-	structType := structVal.Type()
-	var unknownFields []string
-	for key := range jsonMap {
-		fieldFound := false
-		for i := 0; i < structVal.NumField(); i++ {
-			tag := structType.Field(i).Tag.Get("json")
-			if strings.EqualFold(key, tag) {
-				fieldFound = true
-				break
-			}
-		}
-		if !fieldFound {
-			unknownFields = append(unknownFields, key)
-		}
-	}
-	if len(unknownFields) > 0 {
-		return unknownFields, errorsApi.ErrAtributoNaoExistente
-	}
-	return nil, nil
 }

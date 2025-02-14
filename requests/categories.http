@@ -1,5 +1,5 @@
 @apirul = http://localhost:8080
-@id = "e8c7aeb2-d2b1-4d77-9f45-05b7c056d745"
+@id = "ebfb5396-40b7-44bc-81ae-9c4a0280b0e6"
 
 GET {{apirul}}/categories HTTP/1.1
 
@@ -51,10 +51,9 @@ Authorization: Bearer ACCESS-TOKEN
 {
     "name": "New Categoryesss",
     "description": "Novamente um test!",
-    "active": true,
+    "active": "true",
     "created_at": "2025-02-08",
-    "updated_at": "2025-02-08",
-    "NEWCAMPOS": "askaskaska"
+    "updated_at": "2025-02-08"
 }
 
 ###

@@ -13,7 +13,7 @@ type CategoryInterface interface {
 	DeleteCategoryById(ctx context.Context, id uuid.UUID) error
 	DeleteCategories(ctx context.Context, ids []uuid.UUID) error
 	// GetAllProductsByCategory
-	// UpdateCategories
+	UpdateCategoryFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (Category, error)
 }
 
 type Category struct {
