@@ -18,25 +18,13 @@ import (
 )
 
 type CategoryHandler struct {
-	categoryService     *service.CategoryService
-	SupportedMediaTypes map[string]struct{}
+	categoryService *service.CategoryService
 }
 
 func NewCategoryHandler(s *service.CategoryService) *CategoryHandler {
 	return &CategoryHandler{
 		categoryService: s,
-		SupportedMediaTypes: map[string]struct{}{
-			"application/json": {},
-		},
 	}
-}
-
-func (h CategoryHandler) getArraySupportedMediaTypes() []string {
-	var mediaTypes []string
-	for key := range h.SupportedMediaTypes {
-		mediaTypes = append(mediaTypes, key)
-	}
-	return mediaTypes
 }
 
 func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +42,7 @@ func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	response := JsonResponse{
+	SendJsonResponse(JsonResponse{
 		Payload: Response{
 			Data: categories,
 			Meta: map[string]interface{}{
@@ -65,8 +53,7 @@ func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 				},
 			},
 		},
-	}
-	SendJsonResponse(response, http.StatusOK, w)
+	}, http.StatusOK, w)
 }
 
 func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
@@ -93,7 +80,7 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	response := JsonResponse{
+	SendJsonResponse(JsonResponse{
 		Payload: Response{
 			Data: category,
 			Meta: map[string]interface{}{
@@ -102,8 +89,7 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 				},
 			},
 		},
-	}
-	SendJsonResponse(response, http.StatusOK, w)
+	}, http.StatusOK, w)
 }
 
 func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http.Request) {
@@ -138,7 +124,7 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	response := JsonResponse{
+	SendJsonResponse(JsonResponse{
 		Payload: Response{
 			Data: category,
 			Meta: map[string]interface{}{
@@ -147,8 +133,7 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 				},
 			},
 		},
-	}
-	SendJsonResponse(response, http.StatusCreated, w)
+	}, http.StatusCreated, w)
 }
 
 func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
@@ -187,16 +172,6 @@ func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Reque
 func (h CategoryHandler) DeleteCategories(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
-
-	if _, exists := h.SupportedMediaTypes[r.Header.Get("Content-Type")]; !exists {
-		SendJsonError(JsonResponseError{
-			Payload: ResponseError{
-				Error:               "Formato inválido",
-				SupportedMediaTypes: h.getArraySupportedMediaTypes(),
-			},
-		}, http.StatusUnsupportedMediaType, w)
-		return
-	}
 
 	var idsString []string
 	err := json.NewDecoder(r.Body).Decode(&idsString)

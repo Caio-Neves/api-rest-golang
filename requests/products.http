@@ -1,7 +1,14 @@
 @apirul = http://localhost:8080
-@id = 1
+@id = dbf9a48b-0407-4b9c-85e9-e6b2c38b3955
 
 GET {{apirul}}/products HTTP/1.1
+
+### 
+GET {{apirul}}/products?active=0 HTTP/1.1
+
+###
+
+GET {{apirul}}/products?page=2&limit=5&active=1 HTTP/1.1
 
 ###
 

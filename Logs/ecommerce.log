@@ -1,0 +1,20 @@
+2025/02/17 21:21:49 Setup lumberjack logger
+2025/02/17 21:21:49 ecomm
+2025/02/17 21:21:49 localhost
+2025/02/17 21:21:49 postgres
+2025/02/17 21:21:49 macaco123
+2025/02/17 21:21:49 5432
+2025/02/17 21:23:10 [0]
+2025/02/17 21:23:10 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE active = $1 LIMIT 10 OFFSET 0
+2025/02/17 21:24:10 Setup lumberjack logger
+2025/02/17 21:24:10 ecomm
+2025/02/17 21:24:10 localhost
+2025/02/17 21:24:10 postgres
+2025/02/17 21:24:10 macaco123
+2025/02/17 21:24:10 5432
+2025/02/17 21:33:43 Setup lumberjack logger
+2025/02/17 21:33:43 ecomm
+2025/02/17 21:33:43 localhost
+2025/02/17 21:33:43 postgres
+2025/02/17 21:33:43 macaco123
+2025/02/17 21:33:43 5432
