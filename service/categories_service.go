@@ -19,7 +19,7 @@ func NewCategoryService(r entities.CategoryInterface) *CategoryService {
 	}
 }
 
-func (s *CategoryService) GetAllCategories(ctx context.Context, params map[string][]string) ([]entities.Category, error) {
+func (s CategoryService) GetAllCategories(ctx context.Context, params map[string][]string) ([]entities.Category, error) {
 	categories, err := s.categoryRepository.GetAllCategories(ctx, params)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (s *CategoryService) GetAllCategories(ctx context.Context, params map[strin
 	return categories, nil
 }
 
-func (s *CategoryService) GetCategoryById(ctx context.Context, id uuid.UUID) (entities.Category, error) {
+func (s CategoryService) GetCategoryById(ctx context.Context, id uuid.UUID) (entities.Category, error) {
 	category, err := s.categoryRepository.GetCategoryById(ctx, id)
 	if err != nil {
 		return entities.Category{}, err
@@ -35,7 +35,7 @@ func (s *CategoryService) GetCategoryById(ctx context.Context, id uuid.UUID) (en
 	return category, nil
 }
 
-func (s *CategoryService) CreateCategory(ctx context.Context, category entities.Category) (entities.Category, error) {
+func (s CategoryService) CreateCategory(ctx context.Context, category entities.Category) (entities.Category, error) {
 
 	if category.Name == "" {
 		return entities.Category{}, errors.ErrNomeCategoriaObrigatorio
@@ -51,7 +51,7 @@ func (s *CategoryService) CreateCategory(ctx context.Context, category entities.
 	return category, nil
 }
 
-func (s *CategoryService) DeleteCategoryById(ctx context.Context, id uuid.UUID) error {
+func (s CategoryService) DeleteCategoryById(ctx context.Context, id uuid.UUID) error {
 	category, err := s.categoryRepository.GetCategoryById(ctx, id)
 	if err != nil {
 		return err
@@ -60,21 +60,15 @@ func (s *CategoryService) DeleteCategoryById(ctx context.Context, id uuid.UUID) 
 		return errors.ErrCategoriaNaoCadastrada
 	}
 	err = s.categoryRepository.DeleteCategoryById(ctx, id)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
-func (s *CategoryService) DeleteCategories(ctx context.Context, ids []uuid.UUID) error {
+func (s CategoryService) DeleteCategories(ctx context.Context, ids []uuid.UUID) error {
 	err := s.categoryRepository.DeleteCategories(ctx, ids)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
-func (s *CategoryService) UpdateCategoryFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (entities.Category, error) {
+func (s CategoryService) UpdateCategoryFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (entities.Category, error) {
 	category, err := s.categoryRepository.UpdateCategoryFields(ctx, id, fields)
 	if err != nil {
 		log.Println(err)

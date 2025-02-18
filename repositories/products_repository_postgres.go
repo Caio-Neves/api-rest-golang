@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"github.com/lib/pq"
 	"rest-api-example/entities"
 	"strconv"
 
@@ -88,4 +89,32 @@ func (r ProductRepositoryPostgres) GetProductById(ctx context.Context, id uuid.U
 	product := entities.Product{}
 	row.Scan(&product.Id, &product.Name, &product.Description, &product.Price, &product.Active, &product.CreatedAt, &product.UpdatedAt)
 	return product, err
+}
+
+func (r ProductRepositoryPostgres) DeleteProductById(ctx context.Context, id uuid.UUID) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	deleteSql := psql.Delete("products").Where("id = ?", id)
+	query, args, err := deleteSql.ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r ProductRepositoryPostgres) DeleteProducts(ctx context.Context, ids []uuid.UUID) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	deleteSql := psql.Delete("products").Where("id = any(?)", pq.Array(ids))
+	query, args, err := deleteSql.ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
 }

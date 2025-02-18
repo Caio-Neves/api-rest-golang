@@ -2,7 +2,7 @@ package errors
 
 import "errors"
 
-//erros da categoria
+// erros da categoria
 var (
 	ErrCategoriaJaCadastrada         = errors.New("categoria já cadastrada")
 	ErrCategoriaNaoCadastrada        = errors.New("categoria não cadastrada")
@@ -10,7 +10,12 @@ var (
 	ErrDescricaoCategoriaObrigatorio = errors.New("descrição da categoria deve ser informada")
 )
 
-//erros específicos
+// erros do produto
+var (
+	ErrProdutoNaoCdastrado = errors.New("produto não cadastrada")
+)
+
+// erros específicos
 var (
 	ErrUuidInvalido         = errors.New("uuid inválido")
 	ErrAtributoNaoExistente = errors.New("atributo não existente para atualização")

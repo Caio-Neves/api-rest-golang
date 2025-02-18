@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	errorsApi "rest-api-example/errors"
@@ -92,7 +93,38 @@ func (h ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h ProductHandler) DeleteProducts(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Endpoint: DeleteProducts"))
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	defer cancel()
+
+	var idsString []string
+	err := json.NewDecoder(r.Body).Decode(&idsString)
+	if err != nil {
+		SendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: "Verifique o formato do JSON e tente novamente.",
+			},
+		}, http.StatusBadRequest, w)
+		return
+	}
+	var ids []uuid.UUID
+	for _, idString := range idsString {
+		id, err := uuid.Parse(idString)
+		if err != nil {
+			SendJsonError(JsonResponseError{
+				Payload: ResponseError{
+					Error: errorsApi.ErrUuidInvalido.Error(),
+				},
+			}, http.StatusBadRequest, w)
+			return
+		}
+		ids = append(ids, id)
+	}
+	err = h.productService.DeleteProducts(ctx, ids)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h ProductHandler) UpdateProducts(w http.ResponseWriter, r *http.Request) {
@@ -100,5 +132,34 @@ func (h ProductHandler) UpdateProducts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Endpoint: DeleteProductById"))
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	defer cancel()
+
+	vars := mux.Vars(r)
+	idString := vars["id"]
+	id, err := uuid.Parse(idString)
+	if err != nil {
+		SendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: errorsApi.ErrUuidInvalido.Error(),
+			},
+		}, http.StatusBadRequest, w)
+		return
+	}
+	err = h.productService.DeleteProductById(ctx, id)
+	if err != nil {
+		switch err {
+		case errorsApi.ErrProdutoNaoCdastrado:
+			SendJsonError(JsonResponseError{
+				Payload: ResponseError{
+					Error: "Produto não cadastrado.",
+				},
+			}, http.StatusBadRequest, w)
+			return
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
