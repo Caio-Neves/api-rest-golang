@@ -88,9 +88,45 @@ func (h ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	}, http.StatusOK, w)
 }
 
-func (h ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Endpoint: CreateProduct"))
-}
+// func (h ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
+// 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+// 	defer cancel()
+
+// 	var product entities.Product
+// 	err := json.NewDecoder(r.Body).Decode(&product)
+// 	if err != nil {
+// 		SendJsonError(JsonResponseError{
+// 			Payload: ResponseError{
+// 				Error: "Verifique o formato do JSON e tente novamente.",
+// 			},
+// 		}, http.StatusBadRequest, w)
+// 		return
+// 	}
+// 	product, err = h.productService.CreateProduct(ctx, product)
+// 	if err != nil {
+// 		if errors.Is(err, errorsApi.ErrNomeCategoriaObrigatorio) || errors.Is(err, errorsApi.ErrDescricaoCategoriaObrigatorio) {
+// 			SendJsonError(JsonResponseError{
+// 				Payload: ResponseError{
+// 					Error: err.Error(),
+// 				},
+// 			}, http.StatusBadRequest, w)
+// 			return
+// 		}
+// 		log.Println(err)
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		return
+// 	}
+// 	SendJsonResponse(JsonResponse{
+// 		Payload: Response{
+// 			Data: product,
+// 			Meta: map[string]interface{}{
+// 				"result": map[string]int{
+// 					"total": 1,
+// 				},
+// 			},
+// 		},
+// 	}, http.StatusCreated, w)
+// }
 
 func (h ProductHandler) DeleteProducts(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)

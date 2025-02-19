@@ -1,20 +1,18 @@
-2025/02/17 21:21:49 Setup lumberjack logger
-2025/02/17 21:21:49 ecomm
-2025/02/17 21:21:49 localhost
-2025/02/17 21:21:49 postgres
-2025/02/17 21:21:49 macaco123
-2025/02/17 21:21:49 5432
-2025/02/17 21:23:10 [0]
-2025/02/17 21:23:10 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE active = $1 LIMIT 10 OFFSET 0
-2025/02/17 21:24:10 Setup lumberjack logger
-2025/02/17 21:24:10 ecomm
-2025/02/17 21:24:10 localhost
-2025/02/17 21:24:10 postgres
-2025/02/17 21:24:10 macaco123
-2025/02/17 21:24:10 5432
-2025/02/17 21:33:43 Setup lumberjack logger
-2025/02/17 21:33:43 ecomm
-2025/02/17 21:33:43 localhost
-2025/02/17 21:33:43 postgres
-2025/02/17 21:33:43 macaco123
-2025/02/17 21:33:43 5432
+2025/02/18 21:59:54 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1,$2,$3,$4)
+2025/02/18 21:59:54 [91a54216-1009-4a2e-bac5-042e64cf4b6a b8f679bb-1d21-43ec-9e56-2b5fd337b68f 0d61848b-8586-4da2-b853-1709a2f1c489 7f15d9d9-6d96-406b-94e3-132da0593709]
+2025/02/18 22:02:06 Setup lumberjack logger
+2025/02/18 22:02:06 ecomm
+2025/02/18 22:02:06 localhost
+2025/02/18 22:02:06 postgres
+2025/02/18 22:02:06 macaco123
+2025/02/18 22:02:06 5432
+2025/02/18 22:02:11 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id in ($1)
+2025/02/18 22:02:11 [{[91a54216-1009-4a2e-bac5-042e64cf4b6a b8f679bb-1d21-43ec-9e56-2b5fd337b68f 0d61848b-8586-4da2-b853-1709a2f1c489 7f15d9d9-6d96-406b-94e3-132da0593709]}]
+2025/02/18 22:05:13 Setup lumberjack logger
+2025/02/18 22:05:13 ecomm
+2025/02/18 22:05:13 localhost
+2025/02/18 22:05:13 postgres
+2025/02/18 22:05:13 macaco123
+2025/02/18 22:05:13 5432
+2025/02/18 22:05:19 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1,$2,$3,$4)
+2025/02/18 22:05:19 [91a54216-1009-4a2e-bac5-042e64cf4b6a b8f679bb-1d21-43ec-9e56-2b5fd337b68f 0d61848b-8586-4da2-b853-1709a2f1c489 7f15d9d9-6d96-406b-94e3-132da0593709]

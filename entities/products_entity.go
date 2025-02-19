@@ -10,6 +10,8 @@ import (
 type ProductInterface interface {
 	GetAllProducts(ctx context.Context, filters map[string][]string) ([]Product, error)
 	GetProductById(ctx context.Context, id uuid.UUID) (Product, error)
+	DeleteProductById(ctx context.Context, id uuid.UUID)
+	DeleteProducts(ctx context.Context, ids []uuid.UUID)
 }
 
 type Product struct {

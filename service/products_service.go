@@ -10,16 +10,18 @@ import (
 )
 
 type ProductService struct {
-	productRepository *repositories.ProductRepositoryPostgres
+	productRepository  *repositories.ProductRepositoryPostgres
+	categoryRepository *repositories.CategoryRepositoryPostgres
 }
 
-func NewProductService(r *repositories.ProductRepositoryPostgres) *ProductService {
+func NewProductService(p *repositories.ProductRepositoryPostgres, c *repositories.CategoryRepositoryPostgres) *ProductService {
 	return &ProductService{
-		productRepository: r,
+		productRepository:  p,
+		categoryRepository: c,
 	}
 }
 
-func (s *ProductService) GetAllProducts(ctx context.Context, filters map[string][]string) ([]entities.Product, error) {
+func (s ProductService) GetAllProducts(ctx context.Context, filters map[string][]string) ([]entities.Product, error) {
 	products, err := s.productRepository.GetAllProducts(ctx, filters)
 	if err != nil {
 		return nil, err
@@ -27,7 +29,7 @@ func (s *ProductService) GetAllProducts(ctx context.Context, filters map[string]
 	return products, nil
 }
 
-func (s *ProductService) GetProductById(ctx context.Context, id uuid.UUID) (entities.Product, error) {
+func (s ProductService) GetProductById(ctx context.Context, id uuid.UUID) (entities.Product, error) {
 	product, err := s.productRepository.GetProductById(ctx, id)
 	if err != nil {
 		return entities.Product{}, err
@@ -35,7 +37,7 @@ func (s *ProductService) GetProductById(ctx context.Context, id uuid.UUID) (enti
 	return product, nil
 }
 
-func (s *ProductService) DeleteProductById(ctx context.Context, id uuid.UUID) error {
+func (s ProductService) DeleteProductById(ctx context.Context, id uuid.UUID) error {
 	product, err := s.productRepository.GetProductById(ctx, id)
 	if err != nil {
 		return err
@@ -50,7 +52,11 @@ func (s *ProductService) DeleteProductById(ctx context.Context, id uuid.UUID) er
 	return nil
 }
 
-func (s *ProductService) DeleteProducts(ctx context.Context, ids []uuid.UUID) error {
+func (s ProductService) DeleteProducts(ctx context.Context, ids []uuid.UUID) error {
 	err := s.productRepository.DeleteProducts(ctx, ids)
 	return err
 }
+
+// func (s ProductService) CreateProduct(ctx context.Context, product entities.Product) (entities.Product, error) {
+
+// }

@@ -1,5 +1,5 @@
 @apirul = http://localhost:8080
-@id = dbf9a48b-0407-4b9c-85e9-e6b2c38b3955
+@id = "fa849a4b-755e-4134-9c80-2d0e8c8e4b0a"
 
 GET {{apirul}}/products HTTP/1.1
 
@@ -21,6 +21,10 @@ POST {{apirul}}/products HTTP/1.1
 ###
 
 POST {{apirul}}/products/_delete HTTP/1.1
+Content-Type: application/xhtml+xml
+Authorization: Bearer ACCESS-TOKEN
+
+["e61d7297-855b-4a43-9131-d1b798e9d74e", "8f658a10-7790-4745-91b6-8f0f9cd4c4ef"]
 
 ###
 

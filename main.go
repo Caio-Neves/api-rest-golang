@@ -48,7 +48,7 @@ func main() {
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 
 	productRepository := repositories.NewProductRepositoryPostgres(dbInstance)
-	productService := service.NewProductService(productRepository)
+	productService := service.NewProductService(productRepository, categoryRepository)
 	productHandler := handlers.NewProductHandler(productService)
 
 	mux := mux.NewRouter()

@@ -35,6 +35,14 @@ func (s CategoryService) GetCategoryById(ctx context.Context, id uuid.UUID) (ent
 	return category, nil
 }
 
+func (s CategoryService) GetCategoriesByIds(ctx context.Context, ids []uuid.UUID) ([]entities.Category, error) {
+	categories, err := s.categoryRepository.GetCategoriesByIds(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return categories, nil
+}
+
 func (s CategoryService) CreateCategory(ctx context.Context, category entities.Category) (entities.Category, error) {
 
 	if category.Name == "" {

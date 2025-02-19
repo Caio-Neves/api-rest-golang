@@ -92,6 +92,50 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 	}, http.StatusOK, w)
 }
 
+func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	defer cancel()
+
+	var idsString []string
+	err := json.NewDecoder(r.Body).Decode(&idsString)
+	if err != nil {
+		SendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: "Verifique o formato do JSON e tente novamente.",
+			},
+		}, http.StatusBadRequest, w)
+		return
+	}
+	var ids []uuid.UUID
+	for _, idString := range idsString {
+		id, err := uuid.Parse(idString)
+		if err != nil {
+			SendJsonError(JsonResponseError{
+				Payload: ResponseError{
+					Error: errorsApi.ErrUuidInvalido.Error(),
+				},
+			}, http.StatusBadRequest, w)
+			return
+		}
+		ids = append(ids, id)
+	}
+	categories, err := h.categoryService.GetCategoriesByIds(ctx, ids)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	SendJsonResponse(JsonResponse{
+		Payload: Response{
+			Data: categories,
+			Meta: map[string]interface{}{
+				"result": map[string]int{
+					"total": len(categories),
+				},
+			},
+		},
+	}, http.StatusOK, w)
+}
+
 func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Endpoint: GetAllProductsByCategory"))
 }

@@ -97,6 +97,43 @@ func (r CategoryRepositoryPostgres) GetCategoryById(ctx context.Context, id uuid
 	return category, err
 }
 
+func convertUUIDsToStrings(uuids []uuid.UUID) []string {
+	strs := make([]string, len(uuids))
+	for i, id := range uuids {
+		strs[i] = id.String()
+	}
+	return strs
+}
+
+func (r CategoryRepositoryPostgres) GetCategoriesByIds(ctx context.Context, ids []uuid.UUID) ([]entities.Category, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	categorySql := psql.Select("id", "name", "description", "active", "created_at", "updated_at").From("categories")
+	categorySql = categorySql.Where(sq.Eq{"id": convertUUIDsToStrings(ids)})
+
+	query, args, err := categorySql.ToSql()
+	log.Println(query)
+	log.Println(args)
+	if err != nil {
+		return nil, err
+	}
+	stmt, err := r.db.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		return nil, err
+	}
+	var categories []entities.Category
+	for rows.Next() {
+		var category entities.Category
+		rows.Scan(&category.Id, &category.Name, &category.Description, &category.Active, &category.CreatedAt, &category.UpdatedAt)
+		categories = append(categories, category)
+	}
+	return categories, err
+}
+
 func (r CategoryRepositoryPostgres) CreateCategory(ctx context.Context, category entities.Category) (entities.Category, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	categorySql := psql.Insert("categories").Columns("id", "name", "description", "active", "created_at", "updated_at")
