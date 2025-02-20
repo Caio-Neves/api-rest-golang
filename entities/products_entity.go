@@ -2,7 +2,6 @@ package entities
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -12,6 +11,7 @@ type ProductInterface interface {
 	GetProductById(ctx context.Context, id uuid.UUID) (Product, error)
 	DeleteProductById(ctx context.Context, id uuid.UUID)
 	DeleteProducts(ctx context.Context, ids []uuid.UUID)
+	CreateProduct(ctx context.Context, product Product) (Product, error)
 }
 
 type Product struct {
@@ -20,9 +20,9 @@ type Product struct {
 	Description  string      `json:"description"`
 	Price        float64     `json:"price"`
 	Active       bool        `json:"active"`
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at,omitempty"`
-	CategoriesId []uuid.UUID `json:"category"`
+	CreatedAt    string      `json:"created_at"`
+	UpdatedAt    string      `json:"updated_at,omitempty"`
+	CategoriesId []uuid.UUID `json:"categoriesIds"`
 }
 
 func (p *Product) IsEmpty() bool {

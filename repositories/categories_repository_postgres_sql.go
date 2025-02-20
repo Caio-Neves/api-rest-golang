@@ -97,18 +97,10 @@ func (r CategoryRepositoryPostgres) GetCategoryById(ctx context.Context, id uuid
 	return category, err
 }
 
-func convertUUIDsToStrings(uuids []uuid.UUID) []string {
-	strs := make([]string, len(uuids))
-	for i, id := range uuids {
-		strs[i] = id.String()
-	}
-	return strs
-}
-
 func (r CategoryRepositoryPostgres) GetCategoriesByIds(ctx context.Context, ids []uuid.UUID) ([]entities.Category, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	categorySql := psql.Select("id", "name", "description", "active", "created_at", "updated_at").From("categories")
-	categorySql = categorySql.Where(sq.Eq{"id": convertUUIDsToStrings(ids)})
+	categorySql = categorySql.Where(sq.Eq{"id": ids})
 
 	query, args, err := categorySql.ToSql()
 	log.Println(query)

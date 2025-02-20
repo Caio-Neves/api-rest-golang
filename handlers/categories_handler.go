@@ -124,6 +124,10 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	if len(categories) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 	SendJsonResponse(JsonResponse{
 		Payload: Response{
 			Data: categories,
@@ -164,7 +168,6 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 			}, http.StatusBadRequest, w)
 			return
 		}
-		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -57,6 +57,27 @@ func (s ProductService) DeleteProducts(ctx context.Context, ids []uuid.UUID) err
 	return err
 }
 
-// func (s ProductService) CreateProduct(ctx context.Context, product entities.Product) (entities.Product, error) {
-
-// }
+func (s ProductService) CreateProduct(ctx context.Context, product entities.Product) (entities.Product, error) {
+	if len(product.CategoriesId) == 0 {
+		return entities.Product{}, errors.ErrCategoriaDoProdutoEhObrigatoria
+	}
+	categories, err := s.categoryRepository.GetCategoriesByIds(ctx, product.CategoriesId)
+	if err != nil {
+		return entities.Product{}, err
+	}
+	if len(categories) < len(product.CategoriesId) {
+		return entities.Product{}, errors.ErrCategoriaNaoCadastrada
+	}
+	if product.Name == "" {
+		return entities.Product{}, errors.ErrNomeProdutoEhObrigatorio
+	}
+	if product.Description == "" {
+		return entities.Product{}, errors.ErrDescricaoProdutoEhObrigatorio
+	}
+	product.Id = uuid.New()
+	_, err = s.productRepository.CreateProduct(ctx, product)
+	if err != nil {
+		return entities.Product{}, err
+	}
+	return product, nil
+}

@@ -3,9 +3,11 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"github.com/lib/pq"
+	"log"
 	"rest-api-example/entities"
 	"strconv"
+
+	"github.com/lib/pq"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -117,4 +119,51 @@ func (r ProductRepositoryPostgres) DeleteProducts(ctx context.Context, ids []uui
 		return err
 	}
 	return nil
+}
+
+func (r *ProductRepositoryPostgres) CreateProduct(ctx context.Context, product entities.Product) (entities.Product, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	productSql := psql.Insert("products").Columns("id", "name", "description", "price", "active", "created_at", "updated_at")
+	productSql = productSql.Values(product.Id, product.Name, product.Description, product.Price, product.Active, product.CreatedAt, product.UpdatedAt)
+
+	//inicia transaction
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return entities.Product{}, err
+	}
+
+	query, args, err := productSql.ToSql()
+	if err != nil {
+		tx.Rollback()
+		return entities.Product{}, err
+	}
+	_, err = tx.ExecContext(ctx, query, args...)
+	if err != nil {
+		tx.Rollback()
+		return entities.Product{}, err
+	}
+
+	sql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	newSql := sql.Insert("products_categories").Columns("product_id", "category_id")
+	for _, categoryId := range product.CategoriesId {
+		newSql = newSql.Values(product.Id, categoryId)
+	}
+	query, args, err = newSql.ToSql()
+	if err != nil {
+		tx.Rollback()
+		return entities.Product{}, err
+	}
+	log.Println(query)
+	log.Println(args)
+	_, err = tx.ExecContext(ctx, query, args...)
+	if err != nil {
+		_ = tx.Rollback()
+		return entities.Product{}, err
+	}
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return entities.Product{}, err
+	}
+	return product, nil
 }

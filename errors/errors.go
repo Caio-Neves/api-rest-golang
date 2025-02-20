@@ -12,7 +12,10 @@ var (
 
 // erros do produto
 var (
-	ErrProdutoNaoCdastrado = errors.New("produto não cadastrada")
+	ErrProdutoNaoCdastrado             = errors.New("produto não cadastrada")
+	ErrCategoriaDoProdutoEhObrigatoria = errors.New("produto deve ter ao menos 1 categoria")
+	ErrNomeProdutoEhObrigatorio        = errors.New("nome do produto deve ser informado")
+	ErrDescricaoProdutoEhObrigatorio   = errors.New("descricao do produto deve ser informada")
 )
 
 // erros específicos

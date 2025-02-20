@@ -1,5 +1,5 @@
 @apirul = http://localhost:8080
-@id = "fa849a4b-755e-4134-9c80-2d0e8c8e4b0a"
+@id = "7f15d9d9-6d96-406b-94e3-132da0593709"
 
 GET {{apirul}}/products HTTP/1.1
 
@@ -17,6 +17,18 @@ GET {{apirul}}/products/{{id}} HTTP/1.1
 ###
 
 POST {{apirul}}/products HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer ACCESS-TOKEN
+
+{
+    "name": "Celula",
+    "description": "testemado",
+    "price": 20.0,
+    "active": true,
+    "created_at": "2025-02-08",
+    "updated_at": "2025-02-08",
+    "categoriesIds": ["dbf9a48b-0407-4b9c-85e9-e6b2c38b3955"]
+}
 
 ###
 

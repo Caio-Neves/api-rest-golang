@@ -42,8 +42,7 @@ POST {{apirul}}/categories/_get HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer ACCESS-TOKEN
 
-["91a54216-1009-4a2e-bac5-042e64cf4b6a", "b8f679bb-1d21-43ec-9e56-2b5fd337b68f", "0d61848b-8586-4da2-b853-1709a2f1c489", "7f15d9d9-6d96-406b-94e3-132da0593709"]
-
+["dbf9a48b-0407-4b9c-85e9-e6b2c38b3955", "2a7e9d31-b144-4970-bb3f-0846c6acfe5a"]
 ###
 
 GET {{apirul}}/categories/1/products HTTP/1.1

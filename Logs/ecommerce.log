@@ -1,18 +1,36 @@
-2025/02/18 21:59:54 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1,$2,$3,$4)
-2025/02/18 21:59:54 [91a54216-1009-4a2e-bac5-042e64cf4b6a b8f679bb-1d21-43ec-9e56-2b5fd337b68f 0d61848b-8586-4da2-b853-1709a2f1c489 7f15d9d9-6d96-406b-94e3-132da0593709]
-2025/02/18 22:02:06 Setup lumberjack logger
-2025/02/18 22:02:06 ecomm
-2025/02/18 22:02:06 localhost
-2025/02/18 22:02:06 postgres
-2025/02/18 22:02:06 macaco123
-2025/02/18 22:02:06 5432
-2025/02/18 22:02:11 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id in ($1)
-2025/02/18 22:02:11 [{[91a54216-1009-4a2e-bac5-042e64cf4b6a b8f679bb-1d21-43ec-9e56-2b5fd337b68f 0d61848b-8586-4da2-b853-1709a2f1c489 7f15d9d9-6d96-406b-94e3-132da0593709]}]
-2025/02/18 22:05:13 Setup lumberjack logger
-2025/02/18 22:05:13 ecomm
-2025/02/18 22:05:13 localhost
-2025/02/18 22:05:13 postgres
-2025/02/18 22:05:13 macaco123
-2025/02/18 22:05:13 5432
-2025/02/18 22:05:19 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1,$2,$3,$4)
-2025/02/18 22:05:19 [91a54216-1009-4a2e-bac5-042e64cf4b6a b8f679bb-1d21-43ec-9e56-2b5fd337b68f 0d61848b-8586-4da2-b853-1709a2f1c489 7f15d9d9-6d96-406b-94e3-132da0593709]
+2025/02/19 22:01:37 Setup lumberjack logger
+2025/02/19 22:01:37 ecomm
+2025/02/19 22:01:37 localhost
+2025/02/19 22:01:37 postgres
+2025/02/19 22:01:37 macaco123
+2025/02/19 22:01:37 5432
+2025/02/19 22:01:42 &{0xc000008270 <nil> <nil> true true {0 0} false false false 0x3dac00}
+2025/02/19 22:01:42 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1)
+2025/02/19 22:01:42 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:01:42 INSERT INTO products_categories (product_id,category_id) VALUES ($1,$2)
+2025/02/19 22:01:42 [89be284f-c29e-4960-bda8-d7787659e7d4 dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:34 &{0xc000096168 <nil> <nil> true true {0 0} false false false 0x3dac00}
+2025/02/19 22:03:34 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1)
+2025/02/19 22:03:34 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:34 INSERT INTO products_categories (product_id,category_id) VALUES ($1,$2)
+2025/02/19 22:03:34 [ce0d22bd-8d45-4d5c-bba7-a9910e03d80d dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:35 &{0xc000096240 <nil> <nil> true true {0 0} false false false 0x3dac00}
+2025/02/19 22:03:35 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1)
+2025/02/19 22:03:35 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:35 INSERT INTO products_categories (product_id,category_id) VALUES ($1,$2)
+2025/02/19 22:03:35 [790c558b-3a93-4b59-9017-def1779a4b35 dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:35 &{0xc0000088a0 <nil> <nil> true true {0 0} false false false 0x3dac00}
+2025/02/19 22:03:35 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1)
+2025/02/19 22:03:35 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:35 INSERT INTO products_categories (product_id,category_id) VALUES ($1,$2)
+2025/02/19 22:03:35 [7b6ee65e-de9d-49e5-b8a3-b4f3891c3f6d dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:36 &{0xc000008b40 <nil> <nil> true true {0 0} false false false 0x3dac00}
+2025/02/19 22:03:36 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1)
+2025/02/19 22:03:36 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:36 INSERT INTO products_categories (product_id,category_id) VALUES ($1,$2)
+2025/02/19 22:03:36 [3ddbabc8-3b9f-4f09-9a5e-ebc5e950f35a dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:36 &{0xc000096348 <nil> <nil> true true {0 0} false false false 0x3dac00}
+2025/02/19 22:03:36 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1)
+2025/02/19 22:03:36 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/19 22:03:36 INSERT INTO products_categories (product_id,category_id) VALUES ($1,$2)
+2025/02/19 22:03:36 [1b600788-361e-4057-884c-5240775eb8dc dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
