@@ -10,11 +10,11 @@ import (
 )
 
 type ProductService struct {
-	productRepository  *repositories.ProductRepositoryPostgres
-	categoryRepository *repositories.CategoryRepositoryPostgres
+	productRepository  repositories.ProductRepositoryPostgres
+	categoryRepository repositories.CategoryRepositoryPostgres
 }
 
-func NewProductService(p *repositories.ProductRepositoryPostgres, c *repositories.CategoryRepositoryPostgres) *ProductService {
+func NewProductService(p repositories.ProductRepositoryPostgres, c repositories.CategoryRepositoryPostgres) *ProductService {
 	return &ProductService{
 		productRepository:  p,
 		categoryRepository: c,
@@ -76,6 +76,14 @@ func (s ProductService) CreateProduct(ctx context.Context, product entities.Prod
 	}
 	product.Id = uuid.New()
 	_, err = s.productRepository.CreateProduct(ctx, product)
+	if err != nil {
+		return entities.Product{}, err
+	}
+	return product, nil
+}
+
+func (s ProductService) UpdateProductFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (entities.Product, error) {
+	product, err := s.productRepository.UpdateProductFields(ctx, id, fields)
 	if err != nil {
 		return entities.Product{}, err
 	}

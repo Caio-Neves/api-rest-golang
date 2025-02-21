@@ -12,6 +12,7 @@ type ProductInterface interface {
 	DeleteProductById(ctx context.Context, id uuid.UUID)
 	DeleteProducts(ctx context.Context, ids []uuid.UUID)
 	CreateProduct(ctx context.Context, product Product) (Product, error)
+	UpdateProductFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (Product, error)
 }
 
 type Product struct {

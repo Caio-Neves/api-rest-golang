@@ -16,8 +16,8 @@ type CategoryRepositoryPostgres struct {
 	db *sql.DB
 }
 
-func NewCategoryRepositoryPostgres(db *sql.DB) *CategoryRepositoryPostgres {
-	return &CategoryRepositoryPostgres{
+func NewCategoryRepositoryPostgres(db *sql.DB) CategoryRepositoryPostgres {
+	return CategoryRepositoryPostgres{
 		db: db,
 	}
 }

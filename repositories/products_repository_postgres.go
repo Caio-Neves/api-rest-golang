@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"log"
 	"rest-api-example/entities"
 	"strconv"
 
@@ -17,8 +16,8 @@ type ProductRepositoryPostgres struct {
 	db *sql.DB
 }
 
-func NewProductRepositoryPostgres(db *sql.DB) *ProductRepositoryPostgres {
-	return &ProductRepositoryPostgres{
+func NewProductRepositoryPostgres(db *sql.DB) ProductRepositoryPostgres {
+	return ProductRepositoryPostgres{
 		db: db,
 	}
 }
@@ -121,12 +120,11 @@ func (r ProductRepositoryPostgres) DeleteProducts(ctx context.Context, ids []uui
 	return nil
 }
 
-func (r *ProductRepositoryPostgres) CreateProduct(ctx context.Context, product entities.Product) (entities.Product, error) {
+func (r ProductRepositoryPostgres) CreateProduct(ctx context.Context, product entities.Product) (entities.Product, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	productSql := psql.Insert("products").Columns("id", "name", "description", "price", "active", "created_at", "updated_at")
 	productSql = productSql.Values(product.Id, product.Name, product.Description, product.Price, product.Active, product.CreatedAt, product.UpdatedAt)
 
-	//inicia transaction
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return entities.Product{}, err
@@ -153,8 +151,6 @@ func (r *ProductRepositoryPostgres) CreateProduct(ctx context.Context, product e
 		tx.Rollback()
 		return entities.Product{}, err
 	}
-	log.Println(query)
-	log.Println(args)
 	_, err = tx.ExecContext(ctx, query, args...)
 	if err != nil {
 		_ = tx.Rollback()
@@ -164,6 +160,28 @@ func (r *ProductRepositoryPostgres) CreateProduct(ctx context.Context, product e
 	if err != nil {
 		tx.Rollback()
 		return entities.Product{}, err
+	}
+	return product, nil
+}
+
+func (r ProductRepositoryPostgres) UpdateProductFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (entities.Product, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	updateSql := psql.Update("products")
+	for key, value := range fields {
+		updateSql = updateSql.Set(key, value)
+	}
+	updateSql = updateSql.Where("id = ?", id)
+	query, args, err := updateSql.ToSql()
+	if err != nil {
+		return entities.Product{}, err
+	}
+	_, err = r.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return entities.Product{}, err
+	}
+	product, err := r.GetProductById(ctx, id)
+	if err != nil {
+		return entities.Product{}, nil
 	}
 	return product, nil
 }

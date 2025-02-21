@@ -16,7 +16,6 @@ import (
 )
 
 func main() {
-
 	cfg, err := config.ReadConfigFile("./config/config.toml")
 	if err != nil {
 		log.Fatal(err)

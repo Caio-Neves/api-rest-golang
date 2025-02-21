@@ -170,8 +170,62 @@ func (h ProductHandler) DeleteProducts(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h ProductHandler) UpdateProducts(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Endpoint: UpdateProducts"))
+func (h ProductHandler) UpdateProductsFields(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	defer cancel()
+
+	vars := mux.Vars(r)
+	idString := vars["id"]
+	id, err := uuid.Parse(idString)
+	if err != nil {
+		SendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: errorsApi.ErrUuidInvalido.Error(),
+			},
+		}, http.StatusBadRequest, w)
+		return
+	}
+	var jsonBody map[string]interface{}
+	err = json.NewDecoder(r.Body).Decode(&jsonBody)
+	if err != nil {
+		SendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: "Verifique o formato do JSON e tente novamente.",
+			},
+		}, http.StatusBadRequest, w)
+		return
+	}
+	product := entities.Product{}
+	unknownFields, err := ValidateJSONFields(jsonBody, &product)
+	if err != nil {
+		if errors.Is(err, errorsApi.ErrAtributoNaoExistente) {
+			SendJsonError(JsonResponseError{
+				Payload: ResponseError{
+					Error:         err.Error(),
+					UnknownFields: unknownFields,
+				},
+			}, http.StatusBadRequest, w)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	product, err = h.productService.UpdateProductFields(ctx, id, jsonBody)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	SendJsonResponse(JsonResponse{
+		Payload: Response{
+			Data: product,
+			Meta: map[string]interface{}{
+				"fieldsUpdated": map[string]interface{}{
+					"total": len(jsonBody),
+				},
+			},
+		},
+	}, http.StatusOK, w)
 }
 
 func (h ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Request) {
