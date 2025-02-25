@@ -23,7 +23,7 @@ type Product struct {
 	Active       bool        `json:"active"`
 	CreatedAt    string      `json:"created_at"`
 	UpdatedAt    string      `json:"updated_at,omitempty"`
-	CategoriesId []uuid.UUID `json:"categoriesIds"`
+	CategoriesId []uuid.UUID `json:"-"`
 }
 
 func (p *Product) IsEmpty() bool {

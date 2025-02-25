@@ -1,5 +1,6 @@
 @apirul = http://localhost:8080
-@id = "ebfb5396-40b7-44bc-81ae-9c4a0280b0e6"
+#@id = "ebfb5396-40b7-44bc-81ae-9c4a0280b0e6"
+@id = "dbf9a48b-0407-4b9c-85e9-e6b2c38b3955"
 
 GET {{apirul}}/categories HTTP/1.1
 
@@ -45,7 +46,7 @@ Authorization: Bearer ACCESS-TOKEN
 ["dbf9a48b-0407-4b9c-85e9-e6b2c38b3955", "2a7e9d31-b144-4970-bb3f-0846c6acfe5a"]
 ###
 
-GET {{apirul}}/categories/1/products HTTP/1.1
+GET {{apirul}}/categories/{{id}}/products HTTP/1.1
 
 
 ###

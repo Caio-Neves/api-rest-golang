@@ -191,3 +191,34 @@ func (r CategoryRepositoryPostgres) UpdateCategoryFields(ctx context.Context, id
 	}
 	return category, nil
 }
+
+func (r CategoryRepositoryPostgres) GetAllProductsByCategory(ctx context.Context, id uuid.UUID) ([]entities.Product, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	categorySql := psql.Select("p.id", "p.name", "p.description", "p.price", "p.active", "p.created_at", "p.updated_at").From("products_categories")
+	categorySql = categorySql.InnerJoin("products p on p.id = products_categories.product_id")
+	categorySql = categorySql.Where("category_id = ?", id)
+
+	query, args, err := categorySql.ToSql()
+	if err != nil {
+		return nil, err
+	}
+	stmt, err := r.db.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		return nil, err
+	}
+	var products []entities.Product
+	for rows.Next() {
+		var product = entities.Product{}
+		err = rows.Scan(&product.Id, &product.Name, &product.Description, &product.Price, &product.Active, &product.CreatedAt, &product.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+	return products, nil
+}

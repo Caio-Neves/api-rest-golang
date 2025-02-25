@@ -140,10 +140,6 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 	}, http.StatusOK, w)
 }
 
-func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Endpoint: GetAllProductsByCategory"))
-}
-
 func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
@@ -304,6 +300,61 @@ func (h CategoryHandler) UpdateCategoryFields(w http.ResponseWriter, r *http.Req
 			Meta: map[string]interface{}{
 				"fieldsUpdated": map[string]interface{}{
 					"total": len(jsonBody),
+				},
+			},
+		},
+	}, http.StatusOK, w)
+}
+
+func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	defer cancel()
+
+	vars := mux.Vars(r)
+	idString := vars["id"]
+	id, err := uuid.Parse(idString)
+	if err != nil {
+		SendJsonError(JsonResponseError{
+			Payload: ResponseError{
+				Error: errorsApi.ErrUuidInvalido.Error(),
+			},
+		}, http.StatusBadRequest, w)
+		return
+	}
+	category, err := h.categoryService.GetCategoryById(ctx, id)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if category.IsEmpty() {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	products, err := h.categoryService.GetAllProductsByCategory(ctx, id)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if products == nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	type CategoryProducts struct {
+		Category entities.Category  `json:"category"`
+		Products []entities.Product `json:"products"`
+	}
+	categoryProducts := CategoryProducts{
+		Category: category,
+		Products: products,
+	}
+	SendJsonResponse(JsonResponse{
+		Payload: Response{
+			Data: categoryProducts,
+			Meta: map[string]interface{}{
+				"products": map[string]interface{}{
+					"total": len(products),
 				},
 			},
 		},

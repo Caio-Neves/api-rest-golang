@@ -1,7 +1,29 @@
-2025/02/20 21:51:05 Setup lumberjack logger
-2025/02/20 21:51:05 ecomm
-2025/02/20 21:51:05 localhost
-2025/02/20 21:51:05 postgres
-2025/02/20 21:51:05 macaco123
-2025/02/20 21:51:05 5432
-2025/02/20 21:52:41 sql: converting argument $1 type: unsupported type []interface {}, a slice of interface
+s2025/02/24 21:43:20 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
+2025/02/24 21:43:20 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/24 21:43:51 Setup lumberjack logger
+2025/02/24 21:43:51 ecomm
+2025/02/24 21:43:51 localhost
+2025/02/24 21:43:51 postgres
+2025/02/24 21:43:51 macaco123
+2025/02/24 21:43:51 5432
+2025/02/24 21:43:56 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
+2025/02/24 21:43:56 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/24 21:43:57 pq: coluna p.product_id não existe
+2025/02/24 21:44:16 Setup lumberjack logger
+2025/02/24 21:44:16 ecomm
+2025/02/24 21:44:16 localhost
+2025/02/24 21:44:16 postgres
+2025/02/24 21:44:16 macaco123
+2025/02/24 21:44:16 5432
+2025/02/24 21:44:20 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
+2025/02/24 21:44:20 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/24 21:47:00 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
+2025/02/24 21:47:00 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
+2025/02/24 21:47:42 Setup lumberjack logger
+2025/02/24 21:47:42 ecomm
+2025/02/24 21:47:42 localhost
+2025/02/24 21:47:42 postgres
+2025/02/24 21:47:42 macaco123
+2025/02/24 21:47:42 5432
+2025/02/24 21:47:46 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
+2025/02/24 21:47:46 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]

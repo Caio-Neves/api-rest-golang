@@ -84,3 +84,11 @@ func (s CategoryService) UpdateCategoryFields(ctx context.Context, id uuid.UUID,
 	}
 	return category, nil
 }
+
+func (s CategoryService) GetAllProductsByCategory(ctx context.Context, id uuid.UUID) ([]entities.Product, error) {
+	products, err := s.categoryRepository.GetAllProductsByCategory(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}
