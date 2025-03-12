@@ -45,3 +45,7 @@ PATCH {{apirul}}/products/{{id}} HTTP/1.1
 ###
 
 DELETE {{apirul}}/products/{{id}} HTTP/1.1
+
+###
+
+OPTIONS {{apirul}}/admin/categories HTTP/1.1

@@ -4,18 +4,17 @@ import (
 	"context"
 	"rest-api-example/entities"
 	"rest-api-example/errors"
-	"rest-api-example/repositories"
 
 	"github.com/google/uuid"
 )
 
 type ProductService struct {
-	productRepository  repositories.ProductRepositoryPostgres
-	categoryRepository repositories.CategoryRepositoryPostgres
+	productRepository  entities.ProductInterface
+	categoryRepository entities.CategoryInterface
 }
 
-func NewProductService(p repositories.ProductRepositoryPostgres, c repositories.CategoryRepositoryPostgres) *ProductService {
-	return &ProductService{
+func NewProductService(p entities.ProductInterface, c entities.CategoryInterface) ProductService {
+	return ProductService{
 		productRepository:  p,
 		categoryRepository: c,
 	}

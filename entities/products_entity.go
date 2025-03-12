@@ -9,8 +9,8 @@ import (
 type ProductInterface interface {
 	GetAllProducts(ctx context.Context, filters map[string][]string) ([]Product, error)
 	GetProductById(ctx context.Context, id uuid.UUID) (Product, error)
-	DeleteProductById(ctx context.Context, id uuid.UUID)
-	DeleteProducts(ctx context.Context, ids []uuid.UUID)
+	DeleteProductById(ctx context.Context, id uuid.UUID) error
+	DeleteProducts(ctx context.Context, ids []uuid.UUID) error
 	CreateProduct(ctx context.Context, product Product) (Product, error)
 	UpdateProductFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (Product, error)
 }

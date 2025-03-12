@@ -16,7 +16,7 @@ type CategoryRepositoryPostgres struct {
 	db *sql.DB
 }
 
-func NewCategoryRepositoryPostgres(db *sql.DB) CategoryRepositoryPostgres {
+func NewCategoryRepositoryPostgres(db *sql.DB) entities.CategoryInterface {
 	return CategoryRepositoryPostgres{
 		db: db,
 	}

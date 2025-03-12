@@ -21,8 +21,8 @@ type CategoryHandler struct {
 	categoryService *service.CategoryService
 }
 
-func NewCategoryHandler(s *service.CategoryService) *CategoryHandler {
-	return &CategoryHandler{
+func NewCategoryHandler(s *service.CategoryService) CategoryHandler {
+	return CategoryHandler{
 		categoryService: s,
 	}
 }
@@ -205,6 +205,7 @@ func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Reque
 			}, http.StatusBadRequest, w)
 			return
 		default:
+			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

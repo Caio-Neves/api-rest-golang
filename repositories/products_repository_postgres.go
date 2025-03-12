@@ -16,7 +16,7 @@ type ProductRepositoryPostgres struct {
 	db *sql.DB
 }
 
-func NewProductRepositoryPostgres(db *sql.DB) ProductRepositoryPostgres {
+func NewProductRepositoryPostgres(db *sql.DB) entities.ProductInterface {
 	return ProductRepositoryPostgres{
 		db: db,
 	}

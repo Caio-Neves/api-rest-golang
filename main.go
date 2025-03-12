@@ -30,18 +30,11 @@ func main() {
 	log.SetOutput(lumberjackLogger)
 	log.Println("Setup lumberjack logger")
 
-	log.Println(cfg.PostgresServerDatabase.Database)
-	log.Println(cfg.PostgresServerDatabase.Host)
-	log.Println(cfg.PostgresServerDatabase.User)
-	log.Println(cfg.PostgresServerDatabase.Pass)
-	log.Println(cfg.PostgresServerDatabase.Port)
-	// dbInstance, err := config.NewDatabaseConnectionSqlServer(cfg.SqlServerDatabase)
 	dbInstance, err := config.NewDatabaseConnectionPostgreSQL(cfg.PostgresServerDatabase)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// categoryRepository := repositories.NewCategoryRepositorySqlServer(dbInstance)
 	categoryRepository := repositories.NewCategoryRepositoryPostgres(dbInstance)
 	categoryService := service.NewCategoryService(categoryRepository)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
@@ -50,15 +43,17 @@ func main() {
 	productService := service.NewProductService(productRepository, categoryRepository)
 	productHandler := handlers.NewProductHandler(productService)
 
-	mux := mux.NewRouter()
-	routes.InitCategoryRoutes(mux, categoryHandler)
-	routes.InitProductRoutes(mux, productHandler)
+	r := mux.NewRouter()
+	routes.InitCategoryRoutes(r, categoryHandler)
+	routes.InitProductRoutes(r, productHandler)
+	routes.InitAdminProductsRoutes(r, productHandler)
+	routes.InitAdminCategoriesRoutes(r, categoryHandler)
 
 	server := &http.Server{
 		Addr:         ":8080",
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  5 * time.Second,
-		Handler:      mux,
+		Handler:      r,
 		ErrorLog:     nil,
 	}
 	server.ListenAndServe()
