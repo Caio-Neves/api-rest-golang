@@ -2,10 +2,18 @@ package service
 
 import (
 	"context"
+	"errors"
 	"rest-api-example/entities"
-	"rest-api-example/errors"
 
 	"github.com/google/uuid"
+)
+
+// erros do produto
+var (
+	ErrProdutoNaoCdastrado             = errors.New("produto não cadastrada")
+	ErrCategoriaDoProdutoEhObrigatoria = errors.New("produto deve ter ao menos 1 categoria")
+	ErrNomeProdutoEhObrigatorio        = errors.New("nome do produto deve ser informado")
+	ErrDescricaoProdutoEhObrigatorio   = errors.New("descricao do produto deve ser informada")
 )
 
 type ProductService struct {
@@ -42,7 +50,7 @@ func (s ProductService) DeleteProductById(ctx context.Context, id uuid.UUID) err
 		return err
 	}
 	if product.IsEmpty() {
-		return errors.ErrProdutoNaoCdastrado
+		return ErrProdutoNaoCdastrado
 	}
 	err = s.productRepository.DeleteProductById(ctx, id)
 	if err != nil {
@@ -58,20 +66,20 @@ func (s ProductService) DeleteProducts(ctx context.Context, ids []uuid.UUID) err
 
 func (s ProductService) CreateProduct(ctx context.Context, product entities.Product) (entities.Product, error) {
 	if len(product.CategoriesId) == 0 {
-		return entities.Product{}, errors.ErrCategoriaDoProdutoEhObrigatoria
+		return entities.Product{}, ErrCategoriaDoProdutoEhObrigatoria
 	}
 	categories, err := s.categoryRepository.GetCategoriesByIds(ctx, product.CategoriesId)
 	if err != nil {
 		return entities.Product{}, err
 	}
 	if len(categories) < len(product.CategoriesId) {
-		return entities.Product{}, errors.ErrCategoriaNaoCadastrada
+		return entities.Product{}, ErrCategoriaNaoCadastrada
 	}
 	if product.Name == "" {
-		return entities.Product{}, errors.ErrNomeProdutoEhObrigatorio
+		return entities.Product{}, ErrNomeProdutoEhObrigatorio
 	}
 	if product.Description == "" {
-		return entities.Product{}, errors.ErrDescricaoProdutoEhObrigatorio
+		return entities.Product{}, ErrDescricaoProdutoEhObrigatorio
 	}
 	product.Id = uuid.New()
 	_, err = s.productRepository.CreateProduct(ctx, product)

@@ -2,12 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
-	"log"
 	"net/http"
-	"reflect"
-	errorsApi "rest-api-example/errors"
-	"strings"
+	"rest-api-example/entities"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Response struct {
@@ -41,7 +39,6 @@ func SendJsonResponse(jsonResponse JsonResponse, httpStatusCode int, w http.Resp
 	w.WriteHeader(httpStatusCode)
 	err := json.NewEncoder(w).Encode(jsonResponse.Payload)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 }
@@ -56,37 +53,45 @@ func SendJsonError(jsonResponseError JsonResponseError, httpStatusCode int, w ht
 	w.WriteHeader(httpStatusCode)
 	err := json.NewEncoder(w).Encode(jsonResponseError.Payload)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 }
 
-func ValidateJSONFields(jsonMap map[string]interface{}, genStruct interface{}) ([]string, error) {
-	structVal := reflect.ValueOf(genStruct)
-	if structVal.Kind() != reflect.Ptr || structVal.IsNil() {
-		return nil, errors.New("item deve ser um ponteiro pra uma struct")
+func JSONError(w http.ResponseWriter, err error) {
+	e, ok := err.(*entities.Error)
+	if !ok {
+		e = entities.NewInternalServerErrorError(err, "Unhandled error")
 	}
-	structVal = structVal.Elem()
-	if structVal.Kind() != reflect.Struct {
-		return nil, errors.New("item não é uma struct")
+
+	switch e.Code {
+	case entities.BAD_REQUEST:
+		w.WriteHeader(http.StatusBadRequest)
+	case entities.INTERNAL_SERVER_ERROR:
+		w.WriteHeader(http.StatusInternalServerError)
+	case entities.NOT_FOUND:
+		w.WriteHeader(http.StatusNotFound)
+	case entities.CONFLICT:
+		w.WriteHeader(http.StatusConflict)
+	case entities.UNAUTHORIZED:
+		w.WriteHeader(http.StatusUnauthorized)
+	case entities.FORBIDDEN:
+		w.WriteHeader(http.StatusForbidden)
+	case entities.NOT_IMPLEMENTED:
+		w.WriteHeader(http.StatusNotImplemented)
 	}
-	structType := structVal.Type()
-	var unknownFields []string
-	for key := range jsonMap {
-		fieldFound := false
-		for i := 0; i < structVal.NumField(); i++ {
-			tag := structType.Field(i).Tag.Get("json")
-			if strings.EqualFold(key, strings.SplitN(tag, ",", 2)[0]) {
-				fieldFound = true
-				break
-			}
-		}
-		if !fieldFound {
-			unknownFields = append(unknownFields, key)
-		}
+
+	entry := log.WithFields(log.Fields{
+		"code":      e.Code,
+		"error":     e.Err.Error(),
+		"operation": e.Operation,
+		"message":   e.Message,
+	})
+
+	if e.Code != entities.INTERNAL_SERVER_ERROR {
+		entry.Info()
+	} else {
+		entry.Error()
 	}
-	if len(unknownFields) > 0 {
-		return unknownFields, errorsApi.ErrAtributoNaoExistente
-	}
-	return nil, nil
+
+	json.NewEncoder(w).Encode(err)
 }

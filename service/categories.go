@@ -2,11 +2,18 @@ package service
 
 import (
 	"context"
+	"errors"
 	"log"
 	"rest-api-example/entities"
-	"rest-api-example/errors"
 
 	"github.com/google/uuid"
+)
+
+var (
+	ErrCategoriaJaCadastrada         = errors.New("categoria já cadastrada")
+	ErrCategoriaNaoCadastrada        = errors.New("categoria não cadastrada")
+	ErrNomeCategoriaObrigatorio      = errors.New("nome da categoria deve ser informado")
+	ErrDescricaoCategoriaObrigatorio = errors.New("descrição da categoria deve ser informada")
 )
 
 type CategoryService struct {
@@ -46,10 +53,10 @@ func (s CategoryService) GetCategoriesByIds(ctx context.Context, ids []uuid.UUID
 func (s CategoryService) CreateCategory(ctx context.Context, category entities.Category) (entities.Category, error) {
 
 	if category.Name == "" {
-		return entities.Category{}, errors.ErrNomeCategoriaObrigatorio
+		return entities.Category{}, ErrNomeCategoriaObrigatorio
 	}
 	if category.Description == "" {
-		return entities.Category{}, errors.ErrDescricaoCategoriaObrigatorio
+		return entities.Category{}, ErrDescricaoCategoriaObrigatorio
 	}
 	category.Id = uuid.New()
 	category, err := s.categoryRepository.CreateCategory(ctx, category)
@@ -65,7 +72,7 @@ func (s CategoryService) DeleteCategoryById(ctx context.Context, id uuid.UUID) e
 		return err
 	}
 	if category.IsEmpty() {
-		return errors.ErrCategoriaNaoCadastrada
+		return ErrCategoriaNaoCadastrada
 	}
 	err = s.categoryRepository.DeleteCategoryById(ctx, id)
 	return err
