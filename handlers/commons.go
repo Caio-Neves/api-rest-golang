@@ -9,8 +9,8 @@ import (
 )
 
 type Response struct {
-	Data interface{}            `json:"data"`
-	Meta map[string]interface{} `json:"meta"`
+	Data any            `json:"data"`
+	Meta map[string]any `json:"meta"`
 }
 
 type JsonResponse struct {
@@ -19,9 +19,9 @@ type JsonResponse struct {
 }
 
 type ResponseError struct {
-	Error               interface{} `json:"error"`
-	SupportedMediaTypes []string    `json:"supported_formats,omitempty"`
-	UnknownFields       []string    `json:"unknown_fields,omitempty"`
+	Error               any      `json:"error"`
+	SupportedMediaTypes []string `json:"supported_formats,omitempty"`
+	UnknownFields       []string `json:"unknown_fields,omitempty"`
 }
 
 type JsonResponseError struct {
@@ -78,6 +78,8 @@ func JSONError(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusForbidden)
 	case entities.NOT_IMPLEMENTED:
 		w.WriteHeader(http.StatusNotImplemented)
+	case entities.UNSUPPORTED_MEDIA_TYPE:
+		w.WriteHeader(http.StatusUnsupportedMediaType)
 	}
 
 	entry := log.WithFields(log.Fields{

@@ -1,23 +1,23 @@
 package middlewares
 
 import (
+	"fmt"
 	"net/http"
+	"rest-api-example/entities"
 	"rest-api-example/handlers"
+	"strings"
 )
 
 func ValidateSupportedMediaTypes(mediaTypes []string, next http.HandlerFunc) http.HandlerFunc {
+	op := "middlewares.ValidateSupportedMediaTypes()"
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		contentType := strings.TrimSpace(r.Header.Get("Content-Type"))
 		for _, mediaType := range mediaTypes {
-			if r.Header.Get("Content-Type") != "" && r.Header.Get("Content-Type") == mediaType {
+			if contentType != "" && strings.HasPrefix(contentType, mediaType) {
 				next.ServeHTTP(w, r)
 				return
 			}
 		}
-		handlers.SendJsonError(handlers.JsonResponseError{
-			Payload: handlers.ResponseError{
-				Error:               "Formato não suportado",
-				SupportedMediaTypes: mediaTypes,
-			},
-		}, http.StatusUnsupportedMediaType, w)
+		handlers.JSONError(w, entities.NewUnsupportedMediaType(nil, fmt.Sprintf("Formato não suportado, tente os seguintes media types %s", strings.Join(mediaTypes, ",")), op))
 	})
 }

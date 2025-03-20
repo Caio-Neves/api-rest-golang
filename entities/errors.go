@@ -1,14 +1,15 @@
 package entities
 
 var (
-	BAD_REQUEST           = "Bad Request"
-	INTERNAL_SERVER_ERROR = "Internal Server Error"
-	NOT_FOUND             = "Not Found"
-	CONFLICT              = "Conflict"
-	UNAUTHORIZED          = "Unauthorized"
-	FORBIDDEN             = "Forbidden"
-	NOT_IMPLEMENTED       = "Not Implemented"
-	NO_CONTENT            = "No Content"
+	BAD_REQUEST            = "Bad Request"
+	INTERNAL_SERVER_ERROR  = "Internal Server Error"
+	NOT_FOUND              = "Not Found"
+	CONFLICT               = "Conflict"
+	UNAUTHORIZED           = "Unauthorized"
+	FORBIDDEN              = "Forbidden"
+	NOT_IMPLEMENTED        = "Not Implemented"
+	NO_CONTENT             = "No Content"
+	UNSUPPORTED_MEDIA_TYPE = "Unsupported media type"
 )
 
 type Error struct {
@@ -57,4 +58,8 @@ func NewForbiddenError(err error, message string, operation string) *Error {
 
 func NewNotImplementedError(err error, message string, operation string) *Error {
 	return newError(NOT_IMPLEMENTED, message, err, operation)
+}
+
+func NewUnsupportedMediaType(err error, message string, operation string) *Error {
+	return newError(UNSUPPORTED_MEDIA_TYPE, message, err, operation)
 }
