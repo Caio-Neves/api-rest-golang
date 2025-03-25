@@ -3,11 +3,10 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"rest-api-example/category"
 	"rest-api-example/config"
-	"rest-api-example/handlers"
-	"rest-api-example/repositories"
+	"rest-api-example/product"
 	"rest-api-example/routes"
-	"rest-api-example/service"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -36,13 +35,13 @@ func main() {
 	defer dbInstance.Close()
 	log.Info("Database connection established")
 
-	categoryRepository := repositories.NewCategoryRepositoryPostgres(dbInstance)
-	categoryService := service.NewCategoryService(categoryRepository)
-	categoryHandler := handlers.NewCategoryHandler(categoryService)
+	categoryRepository := category.NewCategoryRepositoryPostgres(dbInstance)
+	categoryService := category.NewCategoryService(categoryRepository)
+	categoryHandler := category.NewCategoryHandler(categoryService)
 
-	productRepository := repositories.NewProductRepositoryPostgres(dbInstance)
-	productService := service.NewProductService(productRepository, categoryRepository)
-	productHandler := handlers.NewProductHandler(productService)
+	productRepository := product.NewProductRepositoryPostgres(dbInstance)
+	productService := product.NewProductService(productRepository, categoryRepository)
+	productHandler := product.NewProductHandler(productService)
 	log.Info("Repositories and services initialized")
 
 	r := mux.NewRouter()

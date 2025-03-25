@@ -1,13 +1,11 @@
-package handlers
+package category
 
 import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"net/url"
 	"rest-api-example/entities"
-	"rest-api-example/service"
-	"strconv"
+	"rest-api-example/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,10 +13,10 @@ import (
 )
 
 type CategoryHandler struct {
-	categoryService *service.CategoryService
+	categoryService CategoryService
 }
 
-func NewCategoryHandler(s *service.CategoryService) CategoryHandler {
+func NewCategoryHandler(s CategoryService) CategoryHandler {
 	return CategoryHandler{
 		categoryService: s,
 	}
@@ -29,24 +27,20 @@ func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 	defer cancel()
 
 	queryParams := r.URL.Query()
-	categories, err := h.categoryService.GetAllCategories(ctx, queryParams)
+	page := utils.GetQueryInt(queryParams, "page", 1)
+	limit := utils.GetQueryInt(queryParams, "limit", 10)
+
+	categories, err := h.categoryService.GetAllCategories(ctx, page, limit, queryParams)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: categories,
-			Meta: map[string]any{
-				"pagination": map[string]int{
-					"page":    getQueryInt(queryParams, "page", 1),
-					"limit":   getQueryInt(queryParams, "limit", 10),
-					"results": len(categories),
-				},
-			},
-		},
-	}, http.StatusOK, w)
+	paginationMeta := utils.PaginationMeta{
+		Page:    page,
+		Limit:   limit,
+		Results: len(categories),
+	}
+	utils.JSONResponse(w, categories, paginationMeta, http.StatusOK)
 }
 
 func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
@@ -58,26 +52,16 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 	idString := vars["id"]
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 		return
 	}
 
 	category, err := h.categoryService.GetCategoryById(ctx, id)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: category,
-			Meta: map[string]any{
-				"result": map[string]int{
-					"total": 1,
-				},
-			},
-		},
-	}, http.StatusOK, w)
+	utils.JSONResponse(w, category, nil, http.StatusOK)
 }
 
 func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +72,7 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 	var idsString []string
 	err := json.NewDecoder(r.Body).Decode(&idsString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
 		return
 	}
 
@@ -96,7 +80,7 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 	for _, idString := range idsString {
 		id, err := uuid.Parse(idString)
 		if err != nil {
-			JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+			utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 			return
 		}
 		ids = append(ids, id)
@@ -104,20 +88,10 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 
 	categories, err := h.categoryService.GetCategoriesByIds(ctx, ids)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: categories,
-			Meta: map[string]any{
-				"result": map[string]int{
-					"total": len(categories),
-				},
-			},
-		},
-	}, http.StatusOK, w)
+	utils.JSONResponse(w, categories, nil, http.StatusOK)
 }
 
 func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
@@ -128,26 +102,16 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 	var category entities.Category
 	err := json.NewDecoder(r.Body).Decode(&category)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
 		return
 	}
 
 	category, err = h.categoryService.CreateCategory(ctx, category)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: category,
-			Meta: map[string]any{
-				"result": map[string]int{
-					"total": 1,
-				},
-			},
-		},
-	}, http.StatusCreated, w)
+	utils.JSONResponse(w, category, nil, http.StatusCreated)
 }
 
 func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
@@ -159,13 +123,13 @@ func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Reque
 	idString := vars["id"]
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 		return
 	}
 
 	err = h.categoryService.DeleteCategoryById(ctx, id)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -179,7 +143,7 @@ func (h CategoryHandler) DeleteCategories(w http.ResponseWriter, r *http.Request
 	var idsString []string
 	err := json.NewDecoder(r.Body).Decode(&idsString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
 		return
 	}
 
@@ -187,7 +151,7 @@ func (h CategoryHandler) DeleteCategories(w http.ResponseWriter, r *http.Request
 	for _, idString := range idsString {
 		id, err := uuid.Parse(idString)
 		if err != nil {
-			JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+			utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 			return
 		}
 		ids = append(ids, id)
@@ -210,33 +174,23 @@ func (h CategoryHandler) UpdateCategoryFields(w http.ResponseWriter, r *http.Req
 	idString := vars["id"]
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 		return
 	}
 
 	var jsonBody map[string]any
 	err = json.NewDecoder(r.Body).Decode(&jsonBody)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
 		return
 	}
 
 	category, err := h.categoryService.UpdateCategoryFields(ctx, id, jsonBody)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: category,
-			Meta: map[string]any{
-				"fieldsUpdated": map[string]any{
-					"total": len(jsonBody),
-				},
-			},
-		},
-	}, http.StatusOK, w)
+	utils.JSONResponse(w, category, nil, http.StatusOK)
 }
 
 func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http.Request) {
@@ -248,48 +202,20 @@ func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http
 	idString := vars["id"]
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 		return
 	}
 
-	category, err := h.categoryService.GetCategoryById(ctx, id)
+	_, err = h.categoryService.GetCategoryById(ctx, id)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
 
 	products, err := h.categoryService.GetAllProductsByCategory(ctx, id)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	type CategoryProducts struct {
-		Category entities.Category  `json:"category"`
-		Products []entities.Product `json:"products"`
-	}
-	categoryProducts := CategoryProducts{
-		Category: category,
-		Products: products,
-	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: categoryProducts,
-			Meta: map[string]any{
-				"products": map[string]any{
-					"total": len(products),
-				},
-			},
-		},
-	}, http.StatusOK, w)
-}
-
-func getQueryInt(query url.Values, key string, defaultValue int) int {
-	if value := query.Get(key); value != "" {
-		if intValue, err := strconv.Atoi(value); err == nil {
-			return intValue
-		}
-	}
-	return defaultValue
+	utils.JSONResponse(w, products, nil, http.StatusOK)
 }

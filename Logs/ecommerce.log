@@ -1,34 +1,109 @@
-2025/03/02 10:48:49 Setup lumberjack logger
-2025/03/02 10:49:47 Setup lumberjack logger
-2025/03/02 10:50:36 Setup lumberjack logger
-2025/03/02 10:55:38 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 10:55:38 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 10:56:41 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 10:56:41 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 10:57:23 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 10:57:23 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 10:57:42 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 10:57:42 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 10:57:56 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 10:57:56 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 10:58:31 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 10:58:31 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 10:59:07 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 10:59:07 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 10:59:20 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 10:59:20 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 10:59:36 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 10:59:36 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 11:00:13 Setup lumberjack logger
-2025/03/02 11:00:20 Setup lumberjack logger
-2025/03/02 11:00:23 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 11:00:23 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 11:00:23 pq: atualização ou exclusão em tabela "categories" viola restrição de chave estrangeira "fk_category_id" em "products_categories"
-2025/03/02 11:03:47 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id = $1
-2025/03/02 11:03:47 [dbf9a48b-0407-4b9c-85e9-e6b2c38b3955]
-2025/03/02 11:10:01 Setup lumberjack logger
-2025/03/02 11:10:54 Setup lumberjack logger
-2025/03/02 11:11:20 Setup lumberjack logger
-2025/03/02 11:12:17 SELECT id, name, description, active, created_at, updated_at FROM categories WHERE id IN ($1,$2)
-2025/03/02 11:12:17 [2a7e9d31-b144-4970-bb3f-0846c6acfe5a 0bb93f43-3b27-4429-9f98-7722b03259fc]
-2025/03/04 21:15:48 Setup lumberjack logger
+time="2025-03-24T22:01:41-03:00" level=info msg="Setup log file successfully"
+time="2025-03-24T22:01:41-03:00" level=info msg="Database connection established"
+time="2025-03-24T22:01:41-03:00" level=info msg="Repositories and services initialized"
+time="2025-03-24T22:01:41-03:00" level=info msg="Routes initialized"
+time="2025-03-24T22:01:41-03:00" level=info msg="Server started on port 8080"
+time="2025-03-24T22:01:44-03:00" level=info code="Unsupported media type" error="formato não suportado" message="tente os seguintes media types application/json" operation="middlewares.ValidateSupportedMediaTypes()"
+time="2025-03-24T22:02:04-03:00" level=info msg="Setup log file successfully"
+time="2025-03-24T22:02:04-03:00" level=info msg="Database connection established"
+time="2025-03-24T22:02:04-03:00" level=info msg="Repositories and services initialized"
+time="2025-03-24T22:02:04-03:00" level=info msg="Routes initialized"
+time="2025-03-24T22:02:04-03:00" level=info msg="Server started on port 8080"
+time="2025-03-24T22:05:26-03:00" level=info msg="Setup log file successfully"
+time="2025-03-24T22:05:26-03:00" level=info msg="Database connection established"
+time="2025-03-24T22:05:26-03:00" level=info msg="Repositories and services initialized"
+time="2025-03-24T22:05:26-03:00" level=info msg="Routes initialized"
+time="2025-03-24T22:05:26-03:00" level=info msg="Server started on port 8080"
+time="2025-03-24T22:05:31-03:00" level=warning msg="Um erro inesperado aconteceu, tente novamente mais tarde"
+time="2025-03-24T22:09:13-03:00" level=info msg="Setup log file successfully"
+time="2025-03-24T22:09:13-03:00" level=info msg="Database connection established"
+time="2025-03-24T22:09:13-03:00" level=info msg="Repositories and services initialized"
+time="2025-03-24T22:09:13-03:00" level=info msg="Routes initialized"
+time="2025-03-24T22:09:13-03:00" level=info msg="Server started on port 8080"
+time="2025-03-24T22:09:19-03:00" level=warning msg="ProductService.DeleteProducts()"
+time="2025-03-24T22:10:03-03:00" level=info msg="Setup log file successfully"
+time="2025-03-24T22:10:03-03:00" level=info msg="Database connection established"
+time="2025-03-24T22:10:03-03:00" level=info msg="Repositories and services initialized"
+time="2025-03-24T22:10:03-03:00" level=info msg="Routes initialized"
+time="2025-03-24T22:10:03-03:00" level=info msg="Server started on port 8080"
+time="2025-03-24T22:11:27-03:00" level=info code="Unsupported media type" error="formato não suportado" message="tente os seguintes media types application/json" operation="middlewares.ValidateSupportedMediaTypes()"
+time="2025-03-24T22:11:59-03:00" level=info code="Bad Request" error="invalid character '}' looking for beginning of object key string" message="Verifique o formato do JSON e tente novamente" operation="ProductHandler.UpdateProductsFields()"
+time="2025-03-24T22:13:39-03:00" level=info msg="Setup log file successfully"
+time="2025-03-24T22:13:39-03:00" level=info msg="Database connection established"
+time="2025-03-24T22:13:39-03:00" level=info msg="Repositories and services initialized"
+time="2025-03-24T22:13:39-03:00" level=info msg="Routes initialized"
+time="2025-03-24T22:13:39-03:00" level=info msg="Server started on port 8080"
+time="2025-03-24T22:13:45-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:47-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:47-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:47-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:47-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:47-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:47-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:48-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:48-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:48-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:48-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:48-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:13:50-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:13:50-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:13:50-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:13:50-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:13:50-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:13:50-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:13:51-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:13:51-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:13:51-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:14:02-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:14:39-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:14:39-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:14:40-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:14:40-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:14:40-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:14:41-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:41-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:42-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:42-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:49-03:00" level=info msg="Setup log file successfully"
+time="2025-03-24T22:14:49-03:00" level=info msg="Database connection established"
+time="2025-03-24T22:14:49-03:00" level=info msg="Repositories and services initialized"
+time="2025-03-24T22:14:49-03:00" level=info msg="Routes initialized"
+time="2025-03-24T22:14:49-03:00" level=info msg="Server started on port 8080"
+time="2025-03-24T22:14:52-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:53-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:53-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:53-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:53-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:53-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:53-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:54-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:14:54-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:15:24-03:00" level=info msg="Setup log file successfully"
+time="2025-03-24T22:15:24-03:00" level=info msg="Database connection established"
+time="2025-03-24T22:15:24-03:00" level=info msg="Repositories and services initialized"
+time="2025-03-24T22:15:24-03:00" level=info msg="Routes initialized"
+time="2025-03-24T22:15:24-03:00" level=info msg="Server started on port 8080"
+time="2025-03-24T22:15:28-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:15:29-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:15:29-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:15:30-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:15:30-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.DeleteProductById()"
+time="2025-03-24T22:15:31-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:15:31-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:15:31-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:15:31-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:15:32-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:15:32-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:15:41-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:15:42-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:15:42-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.UpdateProductFields()"
+time="2025-03-24T22:15:44-03:00" level=info msg="&{0xc000094120 <nil> <nil> true true {0 0} false false false 0x77af20}"
+time="2025-03-24T22:17:13-03:00" level=info msg="Setup log file successfully"
+time="2025-03-24T22:17:13-03:00" level=info msg="Database connection established"
+time="2025-03-24T22:17:13-03:00" level=info msg="Repositories and services initialized"
+time="2025-03-24T22:17:13-03:00" level=info msg="Routes initialized"
+time="2025-03-24T22:17:13-03:00" level=info msg="Server started on port 8080"
+time="2025-03-24T22:17:27-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.GetProductById()"
+time="2025-03-24T22:17:28-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.GetProductById()"
+time="2025-03-24T22:17:28-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.GetProductById()"
+time="2025-03-24T22:17:28-03:00" level=info code="Not Found" error="produto não cadastrada" message="produto não cadastrada" operation="ProductService.GetProductById()"

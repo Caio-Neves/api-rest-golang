@@ -1,4 +1,4 @@
-package service
+package category
 
 import (
 	"context"
@@ -20,14 +20,14 @@ type CategoryService struct {
 	categoryRepository entities.CategoryInterface
 }
 
-func NewCategoryService(r entities.CategoryInterface) *CategoryService {
-	return &CategoryService{
+func NewCategoryService(r entities.CategoryInterface) CategoryService {
+	return CategoryService{
 		categoryRepository: r,
 	}
 }
 
-func (s CategoryService) GetAllCategories(ctx context.Context, params map[string][]string) ([]entities.Category, error) {
-	categories, err := s.categoryRepository.GetAllCategories(ctx, params)
+func (s CategoryService) GetAllCategories(ctx context.Context, page int, limit int, params map[string][]string) ([]entities.Category, error) {
+	categories, err := s.categoryRepository.GetPaginateCategories(ctx, page, limit, params)
 	if err != nil {
 		return nil, err
 	}
@@ -35,9 +35,13 @@ func (s CategoryService) GetAllCategories(ctx context.Context, params map[string
 }
 
 func (s CategoryService) GetCategoryById(ctx context.Context, id uuid.UUID) (entities.Category, error) {
+	op := "CategoryService.GetCategoryById()"
 	category, err := s.categoryRepository.GetCategoryById(ctx, id)
 	if err != nil {
 		return entities.Category{}, err
+	}
+	if category.IsEmpty() {
+		return entities.Category{}, entities.NewNotFoundError(ErrCategoriaNaoCadastrada, ErrCategoriaNaoCadastrada.Error(), op)
 	}
 	return category, nil
 }

@@ -1,8 +1,9 @@
-package service
+package product
 
 import (
 	"context"
 	"errors"
+	"rest-api-example/category"
 	"rest-api-example/entities"
 
 	"github.com/google/uuid"
@@ -29,70 +30,93 @@ func NewProductService(p entities.ProductInterface, c entities.CategoryInterface
 }
 
 func (s ProductService) GetAllProducts(ctx context.Context, filters map[string][]string) ([]entities.Product, error) {
+	op := "ProductService.GetAllProducts()"
 	products, err := s.productRepository.GetAllProducts(ctx, filters)
 	if err != nil {
-		return nil, err
+		return nil, entities.NewInternalServerErrorError(err, op)
 	}
 	return products, nil
 }
 
 func (s ProductService) GetProductById(ctx context.Context, id uuid.UUID) (entities.Product, error) {
+	op := "ProductService.GetProductById()"
 	product, err := s.productRepository.GetProductById(ctx, id)
 	if err != nil {
-		return entities.Product{}, err
+		return entities.Product{}, entities.NewInternalServerErrorError(err, op)
+	}
+	if product.IsEmpty() {
+		return entities.Product{}, entities.NewNotFoundError(ErrProdutoNaoCdastrado, ErrProdutoNaoCdastrado.Error(), op)
 	}
 	return product, nil
 }
 
 func (s ProductService) DeleteProductById(ctx context.Context, id uuid.UUID) error {
+	op := "ProductService.DeleteProductById()"
 	product, err := s.productRepository.GetProductById(ctx, id)
 	if err != nil {
-		return err
+		return entities.NewInternalServerErrorError(err, op)
 	}
 	if product.IsEmpty() {
-		return ErrProdutoNaoCdastrado
+		return entities.NewNotFoundError(ErrProdutoNaoCdastrado, ErrProdutoNaoCdastrado.Error(), op)
 	}
 	err = s.productRepository.DeleteProductById(ctx, id)
 	if err != nil {
-		return err
+		return entities.NewInternalServerErrorError(err, op)
 	}
 	return nil
 }
 
 func (s ProductService) DeleteProducts(ctx context.Context, ids []uuid.UUID) error {
+	op := "ProductService.DeleteProducts()"
 	err := s.productRepository.DeleteProducts(ctx, ids)
-	return err
+	if err != nil {
+		entities.NewInternalServerErrorError(err, op)
+	}
+	return nil
 }
 
 func (s ProductService) CreateProduct(ctx context.Context, product entities.Product) (entities.Product, error) {
+	op := "ProductService.CreateProcut()"
 	if len(product.CategoriesId) == 0 {
-		return entities.Product{}, ErrCategoriaDoProdutoEhObrigatoria
+		return entities.Product{}, entities.NewBadRequestError(ErrCategoriaDoProdutoEhObrigatoria, ErrCategoriaDoProdutoEhObrigatoria.Error(), op)
 	}
 	categories, err := s.categoryRepository.GetCategoriesByIds(ctx, product.CategoriesId)
 	if err != nil {
-		return entities.Product{}, err
+		return entities.Product{}, entities.NewInternalServerErrorError(err, op)
 	}
 	if len(categories) < len(product.CategoriesId) {
-		return entities.Product{}, ErrCategoriaNaoCadastrada
+		return entities.Product{}, entities.NewBadRequestError(category.ErrCategoriaNaoCadastrada, category.ErrCategoriaNaoCadastrada.Error(), op)
+
 	}
 	if product.Name == "" {
-		return entities.Product{}, ErrNomeProdutoEhObrigatorio
+		return entities.Product{}, entities.NewBadRequestError(ErrNomeProdutoEhObrigatorio, ErrNomeProdutoEhObrigatorio.Error(), op)
+
 	}
 	if product.Description == "" {
-		return entities.Product{}, ErrDescricaoProdutoEhObrigatorio
+		return entities.Product{}, entities.NewBadRequestError(ErrDescricaoProdutoEhObrigatorio, ErrDescricaoProdutoEhObrigatorio.Error(), op)
 	}
 	product.Id = uuid.New()
 	_, err = s.productRepository.CreateProduct(ctx, product)
 	if err != nil {
-		return entities.Product{}, err
+		return entities.Product{}, entities.NewInternalServerErrorError(err, op)
 	}
 	return product, nil
 }
 
 func (s ProductService) UpdateProductFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (entities.Product, error) {
+	op := "ProductService.UpdateProductFields()"
+
+	productDatabase, err := s.productRepository.GetProductById(ctx, id)
+	if err != nil {
+		return entities.Product{}, entities.NewInternalServerErrorError(err, op)
+	}
+	if productDatabase.IsEmpty() {
+		return entities.Product{}, entities.NewNotFoundError(ErrProdutoNaoCdastrado, ErrProdutoNaoCdastrado.Error(), op)
+	}
+
 	product, err := s.productRepository.UpdateProductFields(ctx, id, fields)
 	if err != nil {
-		return entities.Product{}, err
+		return entities.Product{}, entities.NewInternalServerErrorError(err, op)
 	}
 	return product, nil
 }

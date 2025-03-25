@@ -2,13 +2,13 @@ package routes
 
 import (
 	"net/http"
-	"rest-api-example/handlers"
+	"rest-api-example/product"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
 
-func InitProductRoutes(mux *mux.Router, h handlers.ProductHandler) {
+func InitProductRoutes(mux *mux.Router, h product.ProductHandler) {
 	r := mux.PathPrefix("/products").Subrouter()
 	r.Use(cors.New(cors.Options{
 		AllowedOrigins: []string{"http://127.0.0.1:5500"},

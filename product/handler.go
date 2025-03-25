@@ -1,23 +1,29 @@
-package handlers
+package product
 
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"errors"
 	"net/http"
 	"rest-api-example/entities"
-	"rest-api-example/service"
+	"rest-api-example/utils"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
+var (
+	ErrIdDosProdutosObrigatorio = errors.New("id dos produtos a serem excluídos devem ser informados")
+)
+
 type ProductHandler struct {
-	productService service.ProductService
+	productService ProductService
 }
 
-func NewProductHandler(s service.ProductService) ProductHandler {
+func NewProductHandler(s ProductService) ProductHandler {
 	return ProductHandler{
 		productService: s,
 	}
@@ -28,24 +34,19 @@ func (h ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	queryParams := r.URL.Query()
-	categories, err := h.productService.GetAllProducts(ctx, queryParams)
+	page := utils.GetQueryInt(queryParams, "page", 1)
+	limit := utils.GetQueryInt(queryParams, "limit", 10)
+	products, err := h.productService.GetAllProducts(ctx, queryParams)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: categories,
-			Meta: map[string]any{
-				"pagination": map[string]int{
-					"page":    getQueryInt(queryParams, "page", 1),
-					"limit":   getQueryInt(queryParams, "limit", 10),
-					"results": len(categories),
-				},
-			},
-		},
-	}, http.StatusOK, w)
+	paginationMeta := utils.PaginationMeta{
+		Page:    page,
+		Limit:   limit,
+		Results: len(products),
+	}
+	utils.JSONResponse(w, products, paginationMeta, http.StatusOK)
 }
 
 func (h ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
@@ -57,26 +58,16 @@ func (h ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	idString := vars["id"]
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 		return
 	}
 
 	product, err := h.productService.GetProductById(ctx, id)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: product,
-			Meta: map[string]any{
-				"result": map[string]int{
-					"total": 1,
-				},
-			},
-		},
-	}, http.StatusOK, w)
+	utils.JSONResponse(w, product, nil, http.StatusOK)
 }
 
 func (h ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
@@ -88,26 +79,16 @@ func (h ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.Body)
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
 		return
 	}
 
-	product, err = h.productService.CreateProduct(ctx, product)
+	_, err = h.productService.CreateProduct(ctx, product)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: product,
-			Meta: map[string]any{
-				"result": map[string]int{
-					"total": 1,
-				},
-			},
-		},
-	}, http.StatusCreated, w)
+	utils.JSONResponse(w, product, nil, http.StatusCreated)
 }
 
 func (h ProductHandler) DeleteProducts(w http.ResponseWriter, r *http.Request) {
@@ -118,7 +99,7 @@ func (h ProductHandler) DeleteProducts(w http.ResponseWriter, r *http.Request) {
 	var idsString []string
 	err := json.NewDecoder(r.Body).Decode(&idsString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
 		return
 	}
 
@@ -126,15 +107,20 @@ func (h ProductHandler) DeleteProducts(w http.ResponseWriter, r *http.Request) {
 	for _, idString := range idsString {
 		id, err := uuid.Parse(idString)
 		if err != nil {
-			JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+			utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 			return
 		}
 		ids = append(ids, id)
 	}
 
+	if len(ids) == 0 {
+		utils.JSONError(w, entities.NewBadRequestError(ErrIdDosProdutosObrigatorio, ErrIdDosProdutosObrigatorio.Error(), op))
+		return
+	}
+
 	err = h.productService.DeleteProducts(ctx, ids)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -149,33 +135,23 @@ func (h ProductHandler) UpdateProductsFields(w http.ResponseWriter, r *http.Requ
 	idString := vars["id"]
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 		return
 	}
 
 	var jsonBody map[string]any
 	err = json.NewDecoder(r.Body).Decode(&jsonBody)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "Verifique o formato do JSON e tente novamente", op))
 		return
 	}
 
 	product, err := h.productService.UpdateProductFields(ctx, id, jsonBody)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
 		return
 	}
-
-	SendJsonResponse(JsonResponse{
-		Payload: Response{
-			Data: product,
-			Meta: map[string]any{
-				"fieldsUpdated": map[string]any{
-					"total": len(jsonBody),
-				},
-			},
-		},
-	}, http.StatusOK, w)
+	utils.JSONResponse(w, product, nil, http.StatusOK)
 }
 
 func (h ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Request) {
@@ -187,13 +163,14 @@ func (h ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Request
 	idString := vars["id"]
 	id, err := uuid.Parse(idString)
 	if err != nil {
-		JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
+		utils.JSONError(w, entities.NewBadRequestError(err, "UUID inválido", op))
 		return
 	}
 
 	err = h.productService.DeleteProductById(ctx, id)
 	if err != nil {
-		JSONError(w, err)
+		utils.JSONError(w, err)
+		return
 	}
 	w.WriteHeader(http.StatusNoContent)
 }

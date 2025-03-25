@@ -7,7 +7,7 @@ import (
 )
 
 type CategoryInterface interface {
-	GetAllCategories(ctx context.Context, params map[string][]string) ([]Category, error)
+	GetPaginateCategories(ctx context.Context, page int, limit int, params map[string][]string) ([]Category, error)
 	GetCategoryById(ctx context.Context, id uuid.UUID) (Category, error)
 	GetCategoriesByIds(ctx context.Context, ids []uuid.UUID) ([]Category, error)
 	CreateCategory(ctx context.Context, category Category) (Category, error)

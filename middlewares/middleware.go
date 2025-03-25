@@ -1,10 +1,11 @@
 package middlewares
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"rest-api-example/entities"
-	"rest-api-example/handlers"
+	"rest-api-example/utils"
 	"strings"
 )
 
@@ -18,6 +19,6 @@ func ValidateSupportedMediaTypes(mediaTypes []string, next http.HandlerFunc) htt
 				return
 			}
 		}
-		handlers.JSONError(w, entities.NewUnsupportedMediaType(nil, fmt.Sprintf("Formato não suportado, tente os seguintes media types %s", strings.Join(mediaTypes, ",")), op))
+		utils.JSONError(w, entities.NewUnsupportedMediaType(errors.New("formato não suportado"), fmt.Sprintf("tente os seguintes media types %s", strings.Join(mediaTypes, ",")), op))
 	})
 }

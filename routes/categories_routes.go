@@ -2,14 +2,14 @@ package routes
 
 import (
 	"net/http"
-	"rest-api-example/handlers"
+	"rest-api-example/category"
 	"rest-api-example/middlewares"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
 
-func InitCategoryRoutes(mux *mux.Router, h handlers.CategoryHandler) {
+func InitCategoryRoutes(mux *mux.Router, h category.CategoryHandler) {
 	r := mux.PathPrefix("/categories").Subrouter()
 	r.Use(cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:5500"},

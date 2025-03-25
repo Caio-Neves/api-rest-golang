@@ -1,9 +1,8 @@
-package repositories
+package category
 
 import (
 	"context"
 	"database/sql"
-	"log"
 	"rest-api-example/entities"
 	"strconv"
 
@@ -22,31 +21,19 @@ func NewCategoryRepositoryPostgres(db *sql.DB) entities.CategoryInterface {
 	}
 }
 
-func (r CategoryRepositoryPostgres) GetAllCategories(ctx context.Context, params map[string][]string) ([]entities.Category, error) {
+func (r CategoryRepositoryPostgres) GetPaginateCategories(ctx context.Context, page int, limit int, params map[string][]string) ([]entities.Category, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	categoriesSql := psql.Select("id", "name", "description", "active", "created_at", "updated_at").From("categories")
 	if value, exists := params["active"]; exists {
 		isActive, err := strconv.Atoi(value[0])
 		if err != nil {
-			log.Println(err)
 			return nil, err
 		}
 		categoriesSql = categoriesSql.Where("active = ?", isActive)
 	}
-	page := 1
-	limit := 10
-	if value, exists := params["page"]; exists {
-		page, _ = strconv.Atoi(value[0])
-	}
-	if value, exists := params["limit"]; exists {
-		limit, _ = strconv.Atoi(value[0])
-	}
 	offset := (page - 1) * limit
 	categoriesSql = categoriesSql.Limit(uint64(limit)).Offset(uint64(offset))
-
 	query, args, err := categoriesSql.ToSql()
-	log.Println(args)
-	log.Println(query)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +65,6 @@ func (r CategoryRepositoryPostgres) GetCategoryById(ctx context.Context, id uuid
 	categorySql = categorySql.Where("id = ?", id)
 
 	query, args, err := categorySql.ToSql()
-	log.Println(query)
-	log.Println(args)
 	if err != nil {
 		return entities.Category{}, err
 	}
@@ -103,8 +88,6 @@ func (r CategoryRepositoryPostgres) GetCategoriesByIds(ctx context.Context, ids 
 	categorySql = categorySql.Where(sq.Eq{"id": ids})
 
 	query, args, err := categorySql.ToSql()
-	log.Println(query)
-	log.Println(args)
 	if err != nil {
 		return nil, err
 	}
