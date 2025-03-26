@@ -16,10 +16,17 @@ func InitCategoryRoutes(mux *mux.Router, h category.CategoryHandler) {
 		AllowedMethods: []string{"POST", "GET", "OPTIONS"},
 		AllowedHeaders: []string{"Authorization", "Content-Type"},
 	}).Handler)
-	r.HandleFunc("", h.GetAllCategories).Methods(http.MethodOptions, http.MethodGet)
-	r.HandleFunc("/{id}", h.GetCategoryById).Methods(http.MethodOptions, http.MethodGet)
-	r.HandleFunc("/{id}/products", h.GetAllProductsByCategory).Methods(http.MethodOptions, http.MethodGet)
+	r.HandleFunc("", middlewares.ValidadeAcceptHeader([]string{"application/json"},
+		h.GetAllCategories)).Methods(http.MethodOptions, http.MethodGet)
+
+	r.HandleFunc("/{id}", middlewares.ValidadeAcceptHeader([]string{"application/json"},
+		h.GetCategoryById)).Methods(http.MethodOptions, http.MethodGet)
+
+	r.HandleFunc("/{id}/products", middlewares.ValidadeAcceptHeader([]string{"application/json"},
+		h.GetAllProductsByCategory)).Methods(http.MethodOptions, http.MethodGet)
+
 	r.HandleFunc("/_get",
-		middlewares.ValidateSupportedMediaTypes([]string{"application/json"}, h.GetCategoriesByIds)).Methods(http.MethodOptions,
+		middlewares.ValidateSupportedMediaTypes([]string{"application/json"},
+			middlewares.ValidadeAcceptHeader([]string{"application/json"}, h.GetCategoriesByIds))).Methods(http.MethodOptions,
 		http.MethodPost)
 }

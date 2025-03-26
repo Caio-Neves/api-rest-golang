@@ -3,23 +3,28 @@
 @id = "2a7e9d31-b144-4970-bb3f-0846c6acfe5a"
 
 GET {{apirul}}/categories HTTP/1.1
+Accept: application/json
 
 ### 
 GET {{apirul}}/categories?active=0 HTTP/1.1
+Accept: application/json
 
 ###
 
 GET {{apirul}}/categories?page=1&limit=3&active=1 HTTP/1.1
+Accept: application/json
 
 ###
 
 GET {{apirul}}/categories/{{id}} HTTP/1.1
+Accept: application/json
 
 ###
 
 POST {{apirul}}/admin/categories HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer ACCESS-TOKEN
+Accept: application/json
 
 {
     "name": "New aasasasa",
@@ -42,18 +47,20 @@ Authorization: Bearer ACCESS-TOKEN
 POST {{apirul}}/categories/_get HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer ACCESS-TOKEN
+Accept: application/json
 
 ["dbf9a48b-0407-4b9c-85e9-e6b2c38b3955", "2a7e9d31-b144-4970-bb3f-0846c6acfe5a"]
 ###
 
 GET {{apirul}}/categories/{{id}}/products HTTP/1.1
-
+Accept: application/json
 
 ###
 
 PATCH {{apirul}}/admin/categories/{{id}} HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer ACCESS-TOKEN
+Accept: application/json
 
 {
     "name": "New Categoryesss",

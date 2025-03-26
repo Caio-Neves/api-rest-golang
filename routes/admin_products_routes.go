@@ -17,13 +17,15 @@ func InitAdminProductsRoutes(mux *mux.Router, h product.ProductHandler) {
 		AllowedHeaders: []string{"Authorization", "Content-Type"},
 	}).Handler)
 	r.HandleFunc("",
-		middlewares.ValidateSupportedMediaTypes(([]string{"application/json"}), h.CreateProduct)).Methods(http.MethodOptions,
+		middlewares.ValidateSupportedMediaTypes(([]string{"application/json"}),
+			middlewares.ValidadeAcceptHeader([]string{"application/json"}, h.CreateProduct))).Methods(http.MethodOptions,
 		http.MethodPost)
 	r.HandleFunc("/_delete",
 		middlewares.ValidateSupportedMediaTypes([]string{"application/json"}, h.DeleteProducts)).Methods(http.MethodOptions,
 		http.MethodPost)
 	r.HandleFunc("/{id}",
-		middlewares.ValidateSupportedMediaTypes(([]string{"application/json"}), h.UpdateProductsFields)).Methods(http.MethodOptions,
+		middlewares.ValidateSupportedMediaTypes(([]string{"application/json"}),
+			middlewares.ValidadeAcceptHeader([]string{"application/json"}, h.UpdateProductsFields))).Methods(http.MethodOptions,
 		http.MethodPatch)
 	r.HandleFunc("/{id}", h.DeleteProductById).Methods(http.MethodOptions, http.MethodDelete)
 }

@@ -53,6 +53,8 @@ func JSONError(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusNotImplemented)
 	case entities.UNSUPPORTED_MEDIA_TYPE:
 		w.WriteHeader(http.StatusUnsupportedMediaType)
+	case entities.NOT_ACCEPTABLE:
+		w.WriteHeader(http.StatusNotAcceptable)
 	}
 
 	entry := log.WithFields(log.Fields{

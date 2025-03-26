@@ -10,6 +10,7 @@ var (
 	NOT_IMPLEMENTED        = "Not Implemented"
 	NO_CONTENT             = "No Content"
 	UNSUPPORTED_MEDIA_TYPE = "Unsupported media type"
+	NOT_ACCEPTABLE         = "Not acceptable"
 )
 
 type Error struct {
@@ -62,4 +63,8 @@ func NewNotImplementedError(err error, message string, operation string) *Error 
 
 func NewUnsupportedMediaType(err error, message string, operation string) *Error {
 	return newError(UNSUPPORTED_MEDIA_TYPE, message, err, operation)
+}
+
+func NewNotAcceptable(err error, message string, operation string) *Error {
+	return newError(NOT_ACCEPTABLE, message, err, operation)
 }
