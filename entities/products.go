@@ -26,6 +26,11 @@ type Product struct {
 	CategoriesId []uuid.UUID `json:"CategoriesId"`
 }
 
+type ProductResource struct {
+	Product
+	Links Hateoas
+}
+
 func (p *Product) IsEmpty() bool {
 	return p.Id == uuid.Nil
 }

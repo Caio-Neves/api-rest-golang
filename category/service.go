@@ -26,12 +26,13 @@ func NewCategoryService(r entities.CategoryInterface) CategoryService {
 	}
 }
 
-func (s CategoryService) GetAllCategories(ctx context.Context, page int, limit int, params map[string][]string) ([]entities.Category, error) {
-	categories, err := s.categoryRepository.GetPaginateCategories(ctx, page, limit, params)
+func (s CategoryService) GetAllCategories(ctx context.Context, page int, limit int, params map[string][]string) ([]entities.Category, int, error) {
+	op := "CategoryService.GetAllCategories()"
+	categories, totalCount, err := s.categoryRepository.GetPaginateCategories(ctx, page, limit, params)
 	if err != nil {
-		return nil, err
+		return nil, 0, entities.NewInternalServerErrorError(err, op)
 	}
-	return categories, nil
+	return categories, totalCount, nil
 }
 
 func (s CategoryService) GetCategoryById(ctx context.Context, id uuid.UUID) (entities.Category, error) {

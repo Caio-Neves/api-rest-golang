@@ -12,13 +12,15 @@ import (
 
 type Response struct {
 	Data any `json:"data"`
-	Meta any `json:"meta"`
+	Meta any `json:"_meta"`
 }
 
 type PaginationMeta struct {
-	Page    int `json:"page"`
-	Limit   int `json:"limit"`
-	Results int `json:"results"`
+	Page       int `json:"page"`
+	Limit      int `json:"limit"`
+	TotalPages int `json:"totalPages"`
+	Results    int `json:"results"`
+	entities.Hateoas
 }
 
 func GetQueryInt(query url.Values, key string, defaultValue int) int {

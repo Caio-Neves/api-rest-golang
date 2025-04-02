@@ -21,13 +21,40 @@ func NewCategoryRepositoryPostgres(db *sql.DB) entities.CategoryInterface {
 	}
 }
 
-func (r CategoryRepositoryPostgres) GetPaginateCategories(ctx context.Context, page int, limit int, params map[string][]string) ([]entities.Category, error) {
+func (r CategoryRepositoryPostgres) GetPaginateCategories(ctx context.Context, page int, limit int, params map[string][]string) ([]entities.Category, int, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	countSql := psql.Select("COUNT(*)").
+		FromSelect(
+			psql.Select("id", "active").
+				From("categories"), "subquery",
+		)
+
+	if value, exists := params["active"]; exists {
+		isActive, err := strconv.Atoi(value[0])
+		if err != nil {
+			return nil, 0, err
+		}
+		countSql = countSql.Where("subquery.active = ?", isActive)
+	}
+
+	countQuery, countArgs, err := countSql.ToSql()
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Execute the count query
+	var totalCount int
+	err = r.db.QueryRow(countQuery, countArgs...).Scan(&totalCount)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	categoriesSql := psql.Select("id", "name", "description", "active", "created_at", "updated_at").From("categories")
 	if value, exists := params["active"]; exists {
 		isActive, err := strconv.Atoi(value[0])
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		categoriesSql = categoriesSql.Where("active = ?", isActive)
 	}
@@ -35,16 +62,16 @@ func (r CategoryRepositoryPostgres) GetPaginateCategories(ctx context.Context, p
 	categoriesSql = categoriesSql.Limit(uint64(limit)).Offset(uint64(offset))
 	query, args, err := categoriesSql.ToSql()
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	stmt, err := r.db.PrepareContext(ctx, query)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.QueryContext(ctx, args...)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var categories []entities.Category
@@ -52,11 +79,12 @@ func (r CategoryRepositoryPostgres) GetPaginateCategories(ctx context.Context, p
 		var category = entities.Category{}
 		err = rows.Scan(&category.Id, &category.Name, &category.Description, &category.Active, &category.CreatedAt, &category.UpdatedAt)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		categories = append(categories, category)
 	}
-	return categories, nil
+
+	return categories, totalCount, nil
 }
 
 func (r CategoryRepositoryPostgres) GetCategoryById(ctx context.Context, id uuid.UUID) (entities.Category, error) {

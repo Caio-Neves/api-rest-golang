@@ -3,9 +3,13 @@ package category
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"math"
 	"net/http"
 	"rest-api-example/entities"
 	"rest-api-example/utils"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,6 +27,7 @@ func NewCategoryHandler(s CategoryService) CategoryHandler {
 }
 
 func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request) {
+	op := "CategoryHandler.GetAllCategories()"
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
 
@@ -30,17 +35,63 @@ func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 	page := utils.GetQueryInt(queryParams, "page", 1)
 	limit := utils.GetQueryInt(queryParams, "limit", 10)
 
-	categories, err := h.categoryService.GetAllCategories(ctx, page, limit, queryParams)
+	categories, totalCount, err := h.categoryService.GetAllCategories(ctx, page, limit, queryParams)
 	if err != nil {
 		utils.JSONError(w, err)
 		return
 	}
-	paginationMeta := utils.PaginationMeta{
-		Page:    page,
-		Limit:   limit,
-		Results: len(categories),
+
+	resources := make([]entities.CategoryResource, len(categories))
+	for index, category := range categories {
+		url := fmt.Sprintf("%s/%s", r.URL.Path, category.Id.String())
+		links := entities.NewHateoasBuilder().
+			AddGet("self", url).
+			AddDelete("delete", fmt.Sprintf("/admin%s", url)).
+			AddPatch("update", fmt.Sprintf("/admin%s", url)).
+			Build()
+
+		resource := entities.CategoryResource{
+			Category: category,
+			Links:    links,
+		}
+		resources[index] = resource
 	}
-	utils.JSONResponse(w, categories, paginationMeta, http.StatusOK)
+
+	var filtersUrl string
+
+	var isActive int
+	if value, exists := queryParams["active"]; exists {
+		isActive, err = strconv.Atoi(value[0])
+		if err != nil {
+			utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		}
+		filtersUrl += fmt.Sprintf("&active=%d", isActive)
+	}
+
+	totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+
+	paginationLinksBuilder := entities.NewHateoasBuilder().
+		AddGet("self", fmt.Sprintf("%s?page=%d&limit=%d%s", r.URL.Path, page, limit, filtersUrl))
+	if page < totalPages {
+		paginationLinksBuilder.AddGet("last", fmt.Sprintf("%s?page=%d&limit=%d%s", r.URL.Path, totalPages, limit, filtersUrl))
+	}
+	if page+1 <= totalPages {
+		paginationLinksBuilder.AddGet("next", fmt.Sprintf("%s?page=%d&limit=%d%s", r.URL.Path, page+1, limit, filtersUrl))
+	}
+	if page-1 > 0 {
+		paginationLinksBuilder.AddGet("prev", fmt.Sprintf("%s?page=%d&limit=%d%s", r.URL.Path, page-1, limit, filtersUrl))
+	}
+	links := paginationLinksBuilder.Build()
+
+	meta := utils.PaginationMeta{
+		Page:       page,
+		Limit:      limit,
+		TotalPages: totalPages,
+		Results:    len(categories),
+		Hateoas:    links,
+	}
+
+	utils.JSONResponse(w, resources, meta, http.StatusOK)
 }
 
 func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +112,16 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 		utils.JSONError(w, err)
 		return
 	}
-	utils.JSONResponse(w, category, nil, http.StatusOK)
+
+	var url string
+	url = strings.ReplaceAll(r.URL.Path, "\"", url)
+	links := entities.NewHateoasBuilder().
+		AddGet("self", url).
+		AddDelete("delete", fmt.Sprintf("/admin%s", url)).
+		AddPatch("update", fmt.Sprintf("/admin%s", url)).
+		Build()
+
+	utils.JSONResponse(w, category, links, http.StatusOK)
 }
 
 func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Request) {
@@ -91,6 +151,22 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 		utils.JSONError(w, err)
 		return
 	}
+
+	resources := make([]entities.CategoryResource, len(categories))
+	for index, category := range categories {
+		url := fmt.Sprintf("/categories/%s", category.Id.String())
+		links := entities.NewHateoasBuilder().
+			AddGet("self", url).
+			AddDelete("delete", fmt.Sprintf("/admin%s", url)).
+			AddPatch("update", fmt.Sprintf("/admin%s", url)).
+			Build()
+		resource := entities.CategoryResource{
+			Category: category,
+			Links:    links,
+		}
+		resources[index] = resource
+	}
+
 	utils.JSONResponse(w, categories, nil, http.StatusOK)
 }
 
@@ -111,7 +187,15 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 		utils.JSONError(w, err)
 		return
 	}
-	utils.JSONResponse(w, category, nil, http.StatusCreated)
+
+	url := fmt.Sprintf("/categories/%s", category.Id.String())
+	links := entities.NewHateoasBuilder().
+		AddGet("self", url).
+		AddDelete("delete", fmt.Sprintf("/admin%s", url)).
+		AddPatch("update", fmt.Sprintf("/admin%s", url)).
+		Build()
+
+	utils.JSONResponse(w, category, links, http.StatusCreated)
 }
 
 func (h CategoryHandler) DeleteCategoryById(w http.ResponseWriter, r *http.Request) {
@@ -190,7 +274,15 @@ func (h CategoryHandler) UpdateCategoryFields(w http.ResponseWriter, r *http.Req
 		utils.JSONError(w, err)
 		return
 	}
-	utils.JSONResponse(w, category, nil, http.StatusOK)
+
+	url := fmt.Sprintf("/categories/%s", category.Id.String())
+	links := entities.NewHateoasBuilder().
+		AddGet("self", url).
+		AddDelete("delete", fmt.Sprintf("/admin%s", url)).
+		AddPatch("update", fmt.Sprintf("/admin%s", url)).
+		Build()
+
+	utils.JSONResponse(w, category, links, http.StatusOK)
 }
 
 func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http.Request) {
@@ -217,5 +309,21 @@ func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http
 		utils.JSONError(w, err)
 		return
 	}
-	utils.JSONResponse(w, products, nil, http.StatusOK)
+
+	resources := make([]entities.ProductResource, len(products))
+	for index, product := range products {
+		url := fmt.Sprintf("%s/%s", "/products", product.Id.String())
+		links := entities.NewHateoasBuilder().
+			AddGet("self", url).
+			AddDelete("delete", fmt.Sprintf("/admin%s", url)).
+			AddPatch("update", fmt.Sprintf("/admin%s", url)).
+			Build()
+		resource := entities.ProductResource{
+			Product: product,
+			Links:   links,
+		}
+		resources[index] = resource
+	}
+
+	utils.JSONResponse(w, resources, nil, http.StatusOK)
 }

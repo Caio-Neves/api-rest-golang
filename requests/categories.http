@@ -40,7 +40,7 @@ POST {{apirul}}/admin/categories/_delete HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer ACCESS-TOKEN
 
-["66b9f1d4-5800-43bb-b389-d60fe16c44d4", "c2e499b9-e382-407b-9506-b828fea03410"]
+["4c89cb89-16a0-4d30-a5aa-7d06546dd2ab", "c2e499b9-e382-407b-9506-b828fea03410"]
 
 ###
 

@@ -7,7 +7,7 @@ import (
 )
 
 type CategoryInterface interface {
-	GetPaginateCategories(ctx context.Context, page int, limit int, params map[string][]string) ([]Category, error)
+	GetPaginateCategories(ctx context.Context, page int, limit int, params map[string][]string) ([]Category, int, error)
 	GetCategoryById(ctx context.Context, id uuid.UUID) (Category, error)
 	GetCategoriesByIds(ctx context.Context, ids []uuid.UUID) ([]Category, error)
 	CreateCategory(ctx context.Context, category Category) (Category, error)
@@ -18,12 +18,17 @@ type CategoryInterface interface {
 }
 
 type Category struct {
-	Id          uuid.UUID `json:"-"`
+	Id          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description,omitempty"`
 	Active      bool      `json:"active"`
 	CreatedAt   string    `json:"created_at"`
 	UpdatedAt   string    `json:"updated_at,omitempty"`
+}
+
+type CategoryResource struct {
+	Category
+	Links Hateoas `json:"_meta"`
 }
 
 func (c Category) IsEmpty() bool {
