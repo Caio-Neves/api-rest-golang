@@ -1,3 +1,5 @@
+Port = 8080
+
 Logs = "C:/Users/Neves/OneDrive/Área de Trabalho/API-RESTful/Logs"
 
 [sqlServerDatabase]

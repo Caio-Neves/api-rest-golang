@@ -53,7 +53,7 @@ func main() {
 	log.Info("Routes initialized")
 
 	server := &http.Server{
-		Addr:         ":8080",
+		Addr:         fmt.Sprintf(":%d", cfg.Port),
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  5 * time.Second,
 		Handler:      r,

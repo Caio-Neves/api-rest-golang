@@ -25,6 +25,14 @@ func NewCategoryHandler(s CategoryService) CategoryHandler {
 	}
 }
 
+func getBaseURL(r *http.Request) string {
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+	return fmt.Sprintf("%s://%s", scheme, r.Host)
+}
+
 func (h CategoryHandler) GetPaginateCategories(w http.ResponseWriter, r *http.Request) {
 	op := "CategoryHandler.GetAllCategories()"
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
@@ -43,6 +51,7 @@ func (h CategoryHandler) GetPaginateCategories(w http.ResponseWriter, r *http.Re
 	resources := make([]entities.CategoryResource, len(categories))
 	for index, category := range categories {
 		links := entities.NewHateoasBuilder().
+			AddBaseUrl(getBaseURL(r)).
 			AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
 			AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
 			AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
@@ -69,6 +78,7 @@ func (h CategoryHandler) GetPaginateCategories(w http.ResponseWriter, r *http.Re
 	totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
 
 	paginationLinksBuilder := entities.NewHateoasBuilder().
+		AddBaseUrl(getBaseURL(r)).
 		AddGet("self", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, page, limit, filtersUrl))
 	if page < totalPages {
 		paginationLinksBuilder.AddGet("last", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, totalPages, limit, filtersUrl))
@@ -112,6 +122,7 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 	}
 
 	links := entities.NewHateoasBuilder().
+		AddBaseUrl(getBaseURL(r)).
 		AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
 		AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
 		AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
@@ -151,6 +162,7 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 	resources := make([]entities.CategoryResource, len(categories))
 	for index, category := range categories {
 		links := entities.NewHateoasBuilder().
+			AddBaseUrl(getBaseURL(r)).
 			AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
 			AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
 			AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
@@ -184,6 +196,7 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 	}
 
 	links := entities.NewHateoasBuilder().
+		AddBaseUrl(getBaseURL(r)).
 		AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
 		AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
 		AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
@@ -270,6 +283,7 @@ func (h CategoryHandler) UpdateCategoryFields(w http.ResponseWriter, r *http.Req
 	}
 
 	links := entities.NewHateoasBuilder().
+		AddBaseUrl(getBaseURL(r)).
 		AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
 		AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
 		AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
@@ -306,6 +320,7 @@ func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http
 	resources := make([]entities.ProductResource, len(products))
 	for index, product := range products {
 		links := entities.NewHateoasBuilder().
+			AddBaseUrl(getBaseURL(r)).
 			AddGet("self", fmt.Sprintf(entities.ProductGet, product.Id.String())).
 			AddDelete("delete", fmt.Sprintf(entities.ProductDelete, product.Id.String())).
 			AddPatch("update", fmt.Sprintf(entities.ProductUpdate, product.Id.String())).
