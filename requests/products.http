@@ -1,5 +1,5 @@
 @apirul = http://localhost:8080
-@id = "29f35a07-0e18-45a1-8b7d-7d93e2d2b663"
+@id = "7a5f80db-bfba-4bdf-883a-ec34a4ab18de"
 
 GET {{apirul}}/products HTTP/1.1
 

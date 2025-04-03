@@ -17,6 +17,14 @@ type CategoryInterface interface {
 	UpdateCategoryFields(ctx context.Context, id uuid.UUID, fields map[string]any) (Category, error)
 }
 
+const (
+	CategoryGet    = "/categories/%s"
+	CategoryList   = "/categories"
+	CategoryCreate = "/admin/categories"
+	CategoryUpdate = "/admin/categories/%s"
+	CategoryDelete = "/admin/categories/%s"
+)
+
 type Category struct {
 	Id          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`

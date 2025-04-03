@@ -7,13 +7,21 @@ import (
 )
 
 type ProductInterface interface {
-	GetAllProducts(ctx context.Context, filters map[string][]string) ([]Product, error)
+	GetAllProducts(ctx context.Context, filters map[string][]string) ([]Product, int, error)
 	GetProductById(ctx context.Context, id uuid.UUID) (Product, error)
 	DeleteProductById(ctx context.Context, id uuid.UUID) error
 	DeleteProducts(ctx context.Context, ids []uuid.UUID) error
 	CreateProduct(ctx context.Context, product Product) (Product, error)
 	UpdateProductFields(ctx context.Context, id uuid.UUID, fields map[string]interface{}) (Product, error)
 }
+
+const (
+	ProductGet    = "/products/%s"
+	ProductList   = "/products"
+	ProductCreate = "/admin/products"
+	ProductUpdate = "/admin/products/%s"
+	ProductDelete = "/admin/products/%s"
+)
 
 type Product struct {
 	Id           uuid.UUID   `json:"-"`
@@ -28,7 +36,7 @@ type Product struct {
 
 type ProductResource struct {
 	Product
-	Links Hateoas
+	Links Hateoas `json:"_meta"`
 }
 
 func (p *Product) IsEmpty() bool {

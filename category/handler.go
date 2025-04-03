@@ -9,7 +9,6 @@ import (
 	"rest-api-example/entities"
 	"rest-api-example/utils"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,7 +25,7 @@ func NewCategoryHandler(s CategoryService) CategoryHandler {
 	}
 }
 
-func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request) {
+func (h CategoryHandler) GetPaginateCategories(w http.ResponseWriter, r *http.Request) {
 	op := "CategoryHandler.GetAllCategories()"
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
@@ -43,11 +42,10 @@ func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 
 	resources := make([]entities.CategoryResource, len(categories))
 	for index, category := range categories {
-		url := fmt.Sprintf("%s/%s", r.URL.Path, category.Id.String())
 		links := entities.NewHateoasBuilder().
-			AddGet("self", url).
-			AddDelete("delete", fmt.Sprintf("/admin%s", url)).
-			AddPatch("update", fmt.Sprintf("/admin%s", url)).
+			AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
+			AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
+			AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
 			Build()
 
 		resource := entities.CategoryResource{
@@ -71,15 +69,15 @@ func (h CategoryHandler) GetAllCategories(w http.ResponseWriter, r *http.Request
 	totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
 
 	paginationLinksBuilder := entities.NewHateoasBuilder().
-		AddGet("self", fmt.Sprintf("%s?page=%d&limit=%d%s", r.URL.Path, page, limit, filtersUrl))
+		AddGet("self", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, page, limit, filtersUrl))
 	if page < totalPages {
-		paginationLinksBuilder.AddGet("last", fmt.Sprintf("%s?page=%d&limit=%d%s", r.URL.Path, totalPages, limit, filtersUrl))
+		paginationLinksBuilder.AddGet("last", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, totalPages, limit, filtersUrl))
 	}
 	if page+1 <= totalPages {
-		paginationLinksBuilder.AddGet("next", fmt.Sprintf("%s?page=%d&limit=%d%s", r.URL.Path, page+1, limit, filtersUrl))
+		paginationLinksBuilder.AddGet("next", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, page+1, limit, filtersUrl))
 	}
 	if page-1 > 0 {
-		paginationLinksBuilder.AddGet("prev", fmt.Sprintf("%s?page=%d&limit=%d%s", r.URL.Path, page-1, limit, filtersUrl))
+		paginationLinksBuilder.AddGet("prev", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, page-1, limit, filtersUrl))
 	}
 	links := paginationLinksBuilder.Build()
 
@@ -113,12 +111,10 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var url string
-	url = strings.ReplaceAll(r.URL.Path, "\"", url)
 	links := entities.NewHateoasBuilder().
-		AddGet("self", url).
-		AddDelete("delete", fmt.Sprintf("/admin%s", url)).
-		AddPatch("update", fmt.Sprintf("/admin%s", url)).
+		AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
+		AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
+		AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
 		Build()
 
 	utils.JSONResponse(w, category, links, http.StatusOK)
@@ -154,11 +150,10 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 
 	resources := make([]entities.CategoryResource, len(categories))
 	for index, category := range categories {
-		url := fmt.Sprintf("/categories/%s", category.Id.String())
 		links := entities.NewHateoasBuilder().
-			AddGet("self", url).
-			AddDelete("delete", fmt.Sprintf("/admin%s", url)).
-			AddPatch("update", fmt.Sprintf("/admin%s", url)).
+			AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
+			AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
+			AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
 			Build()
 		resource := entities.CategoryResource{
 			Category: category,
@@ -167,7 +162,7 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 		resources[index] = resource
 	}
 
-	utils.JSONResponse(w, categories, nil, http.StatusOK)
+	utils.JSONResponse(w, resources, nil, http.StatusOK)
 }
 
 func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
@@ -188,11 +183,10 @@ func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	url := fmt.Sprintf("/categories/%s", category.Id.String())
 	links := entities.NewHateoasBuilder().
-		AddGet("self", url).
-		AddDelete("delete", fmt.Sprintf("/admin%s", url)).
-		AddPatch("update", fmt.Sprintf("/admin%s", url)).
+		AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
+		AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
+		AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
 		Build()
 
 	utils.JSONResponse(w, category, links, http.StatusCreated)
@@ -275,11 +269,10 @@ func (h CategoryHandler) UpdateCategoryFields(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	url := fmt.Sprintf("/categories/%s", category.Id.String())
 	links := entities.NewHateoasBuilder().
-		AddGet("self", url).
-		AddDelete("delete", fmt.Sprintf("/admin%s", url)).
-		AddPatch("update", fmt.Sprintf("/admin%s", url)).
+		AddGet("self", fmt.Sprintf(entities.CategoryGet, category.Id.String())).
+		AddDelete("delete", fmt.Sprintf(entities.CategoryDelete, category.Id.String())).
+		AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
 		Build()
 
 	utils.JSONResponse(w, category, links, http.StatusOK)
@@ -312,11 +305,10 @@ func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http
 
 	resources := make([]entities.ProductResource, len(products))
 	for index, product := range products {
-		url := fmt.Sprintf("%s/%s", "/products", product.Id.String())
 		links := entities.NewHateoasBuilder().
-			AddGet("self", url).
-			AddDelete("delete", fmt.Sprintf("/admin%s", url)).
-			AddPatch("update", fmt.Sprintf("/admin%s", url)).
+			AddGet("self", fmt.Sprintf(entities.ProductGet, product.Id.String())).
+			AddDelete("delete", fmt.Sprintf(entities.ProductDelete, product.Id.String())).
+			AddPatch("update", fmt.Sprintf(entities.ProductUpdate, product.Id.String())).
 			Build()
 		resource := entities.ProductResource{
 			Product: product,

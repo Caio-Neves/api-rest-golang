@@ -22,13 +22,40 @@ func NewProductRepositoryPostgres(db *sql.DB) entities.ProductInterface {
 	}
 }
 
-func (r ProductRepositoryPostgres) GetAllProducts(ctx context.Context, filters map[string][]string) ([]entities.Product, error) {
+func (r ProductRepositoryPostgres) GetAllProducts(ctx context.Context, filters map[string][]string) ([]entities.Product, int, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	countSql := psql.Select("COUNT(*)").
+		FromSelect(
+			psql.Select("id", "active").
+				From("categories"), "subquery",
+		)
+
+	if value, exists := filters["active"]; exists {
+		isActive, err := strconv.Atoi(value[0])
+		if err != nil {
+			return nil, 0, err
+		}
+		countSql = countSql.Where("subquery.active = ?", isActive)
+	}
+
+	countQuery, countArgs, err := countSql.ToSql()
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Execute the count query
+	var totalCount int
+	err = r.db.QueryRow(countQuery, countArgs...).Scan(&totalCount)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	productSql := psql.Select("id", "name", "description", "price", "active", "created_at", "updated_at").From("products")
 	if value, exists := filters["active"]; exists {
 		isActive, err := strconv.Atoi(value[0])
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		productSql = productSql.Where("active = ?", isActive)
 	}
@@ -45,16 +72,16 @@ func (r ProductRepositoryPostgres) GetAllProducts(ctx context.Context, filters m
 
 	query, args, err := productSql.ToSql()
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	stmt, err := r.db.PrepareContext(ctx, query)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.QueryContext(ctx, args...)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var products []entities.Product
@@ -62,11 +89,11 @@ func (r ProductRepositoryPostgres) GetAllProducts(ctx context.Context, filters m
 		var product = entities.Product{}
 		err = rows.Scan(&product.Id, &product.Name, &product.Description, &product.Price, &product.Active, &product.CreatedAt, &product.UpdatedAt)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		products = append(products, product)
 	}
-	return products, nil
+	return products, totalCount, nil
 }
 
 func (r ProductRepositoryPostgres) GetProductById(ctx context.Context, id uuid.UUID) (entities.Product, error) {

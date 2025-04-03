@@ -18,7 +18,7 @@ import (
 func main() {
 	cfg, err := config.ReadConfigFile("./config/config.toml")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	log.SetOutput(&lumberjack.Logger{
@@ -30,25 +30,26 @@ func main() {
 
 	dbInstance, err := config.NewDatabaseConnectionPostgreSQL(cfg.PostgresServerDatabase)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	defer dbInstance.Close()
 	log.Info("Database connection established")
 
 	categoryRepository := category.NewCategoryRepositoryPostgres(dbInstance)
-	categoryService := category.NewCategoryService(categoryRepository)
-	categoryHandler := category.NewCategoryHandler(categoryService)
-
 	productRepository := product.NewProductRepositoryPostgres(dbInstance)
+	log.Info("Successful setup of repositories")
+
+	categoryService := category.NewCategoryService(categoryRepository)
 	productService := product.NewProductService(productRepository, categoryRepository)
+	log.Info("Successful setup of services")
+
+	categoryHandler := category.NewCategoryHandler(categoryService)
 	productHandler := product.NewProductHandler(productService)
-	log.Info("Repositories and services initialized")
+	log.Info("Successful setup of handlers")
 
 	r := mux.NewRouter()
-	routes.InitCategoryRoutes(r, categoryHandler)
-	routes.InitProductRoutes(r, productHandler)
-	routes.InitAdminProductsRoutes(r, productHandler)
-	routes.InitAdminCategoriesRoutes(r, categoryHandler)
+	routes.SetupProductsRoutes(r, productHandler)
+	routes.SetupCategoriesRoutes(r, categoryHandler)
 	log.Info("Routes initialized")
 
 	server := &http.Server{

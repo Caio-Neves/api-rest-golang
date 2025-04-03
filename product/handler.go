@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"math"
 	"net/http"
 	"rest-api-example/entities"
 	"rest-api-example/utils"
+	"strconv"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -30,23 +33,68 @@ func NewProductHandler(s ProductService) ProductHandler {
 }
 
 func (h ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
+	op := "ProductHandler.GetAllProducts()"
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
 
 	queryParams := r.URL.Query()
 	page := utils.GetQueryInt(queryParams, "page", 1)
 	limit := utils.GetQueryInt(queryParams, "limit", 10)
-	products, err := h.productService.GetAllProducts(ctx, queryParams)
+
+	var filtersUrl string
+	if value, exists := queryParams["active"]; exists {
+		isActive, err := strconv.Atoi(value[0])
+		if err != nil {
+			utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		}
+		filtersUrl += fmt.Sprintf("&active=%d", isActive)
+	}
+
+	products, totalCount, err := h.productService.GetAllProducts(ctx, queryParams)
 	if err != nil {
 		utils.JSONError(w, err)
 		return
 	}
-	paginationMeta := utils.PaginationMeta{
-		Page:    page,
-		Limit:   limit,
-		Results: len(products),
+
+	resources := make([]entities.ProductResource, len(products))
+	for index, product := range products {
+		links := entities.NewHateoasBuilder().
+			AddGet("self", fmt.Sprintf(entities.ProductGet, product.Id.String())).
+			AddDelete("delete", fmt.Sprintf(entities.ProductDelete, product.Id.String())).
+			AddPatch("update", fmt.Sprintf(entities.ProductUpdate, product.Id.String())).
+			Build()
+
+		resource := entities.ProductResource{
+			Product: product,
+			Links:   links,
+		}
+		resources[index] = resource
 	}
-	utils.JSONResponse(w, products, paginationMeta, http.StatusOK)
+
+	totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+
+	paginationLinksBuilder := entities.NewHateoasBuilder().
+		AddGet("self", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, page, limit, filtersUrl))
+	if page < totalPages {
+		paginationLinksBuilder.AddGet("last", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, totalPages, limit, filtersUrl))
+	}
+	if page+1 <= totalPages {
+		paginationLinksBuilder.AddGet("next", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, page+1, limit, filtersUrl))
+	}
+	if page-1 > 0 {
+		paginationLinksBuilder.AddGet("prev", fmt.Sprintf("%s?page=%d&limit=%d%s", entities.CategoryList, page-1, limit, filtersUrl))
+	}
+	links := paginationLinksBuilder.Build()
+
+	meta := utils.PaginationMeta{
+		Page:       page,
+		Limit:      limit,
+		TotalPages: totalPages,
+		Results:    len(products),
+		Hateoas:    links,
+	}
+
+	utils.JSONResponse(w, resources, meta, http.StatusOK)
 }
 
 func (h ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +115,13 @@ func (h ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 		utils.JSONError(w, err)
 		return
 	}
-	utils.JSONResponse(w, product, nil, http.StatusOK)
+
+	links := entities.NewHateoasBuilder().
+		AddGet("self", fmt.Sprintf(entities.ProductGet, product.Id.String())).
+		AddDelete("delete", fmt.Sprintf(entities.ProductDelete, product.Id.String())).
+		AddPatch("update", fmt.Sprintf(entities.ProductUpdate, product.Id.String())).
+		Build()
+	utils.JSONResponse(w, product, links, http.StatusOK)
 }
 
 func (h ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
@@ -83,12 +137,19 @@ func (h ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.productService.CreateProduct(ctx, product)
+	product, err = h.productService.CreateProduct(ctx, product)
 	if err != nil {
 		utils.JSONError(w, err)
 		return
 	}
-	utils.JSONResponse(w, product, nil, http.StatusCreated)
+
+	links := entities.NewHateoasBuilder().
+		AddGet("self", fmt.Sprintf(entities.ProductGet, product.Id.String())).
+		AddDelete("delete", fmt.Sprintf(entities.ProductDelete, product.Id.String())).
+		AddPatch("update", fmt.Sprintf(entities.ProductUpdate, product.Id.String())).
+		Build()
+
+	utils.JSONResponse(w, product, links, http.StatusCreated)
 }
 
 func (h ProductHandler) DeleteProducts(w http.ResponseWriter, r *http.Request) {
@@ -151,7 +212,14 @@ func (h ProductHandler) UpdateProductsFields(w http.ResponseWriter, r *http.Requ
 		utils.JSONError(w, err)
 		return
 	}
-	utils.JSONResponse(w, product, nil, http.StatusOK)
+
+	links := entities.NewHateoasBuilder().
+		AddGet("self", fmt.Sprintf(entities.ProductGet, product.Id.String())).
+		AddDelete("delete", fmt.Sprintf(entities.ProductDelete, product.Id.String())).
+		AddPatch("update", fmt.Sprintf(entities.ProductUpdate, product.Id.String())).
+		Build()
+
+	utils.JSONResponse(w, product, links, http.StatusOK)
 }
 
 func (h ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Request) {

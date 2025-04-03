@@ -29,13 +29,13 @@ func NewProductService(p entities.ProductInterface, c entities.CategoryInterface
 	}
 }
 
-func (s ProductService) GetAllProducts(ctx context.Context, filters map[string][]string) ([]entities.Product, error) {
+func (s ProductService) GetAllProducts(ctx context.Context, filters map[string][]string) ([]entities.Product, int, error) {
 	op := "ProductService.GetAllProducts()"
-	products, err := s.productRepository.GetAllProducts(ctx, filters)
+	products, totalCount, err := s.productRepository.GetAllProducts(ctx, filters)
 	if err != nil {
-		return nil, entities.NewInternalServerErrorError(err, op)
+		return nil, 0, entities.NewInternalServerErrorError(err, op)
 	}
-	return products, nil
+	return products, totalCount, nil
 }
 
 func (s ProductService) GetProductById(ctx context.Context, id uuid.UUID) (entities.Product, error) {
