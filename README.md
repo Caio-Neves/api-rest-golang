@@ -21,6 +21,7 @@ Este projeto é uma API RESTful escrita em Go, onde decidi aprofundar meus conhe
 - Retorno `304 Not Modified` quando aplicável
 - Redução de consumo de banda e carga de processamento
 
+### 🪵 Logs estruturados utilizando [slog](https://github.com/sirupsen/logrus) com rotação automática usando [Lumberjack](https://github.com/natefinch/lumberjack)
 ---
 
 ## 📌 Em andamento / Próximos passos
