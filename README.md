@@ -1,6 +1,6 @@
 # 🧠 RESTful API em Golang
 
-Este projeto é uma API RESTful escrita em Go, onde decidi aprofundar meus conhecimentos no padrão REST proposto por Roy Fielding bem como aprofundar meu conhecimento em Golang. A API Implementa até o nível 3 da Escala de Maturidade de Richardson e inclui caching inteligente com ETags para otimizar o tráfego entre cliente e servidor.
+Este projeto é uma API RESTful escrita em Go, onde decidi aprofundar meus conhecimentos no padrão REST proposto por Roy Fielding bem como aprofundar meu conhecimento em Golang. A API Implementa até o nível 3 da Escala de Maturidade de Richardson e inclui caching com ETags para otimizar o tráfego entre cliente e servidor.
 
 ---
 
