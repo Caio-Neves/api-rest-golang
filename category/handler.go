@@ -9,6 +9,7 @@ import (
 	"rest-api-example/entities"
 	"rest-api-example/utils"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -99,7 +100,36 @@ func (h CategoryHandler) GetPaginateCategories(w http.ResponseWriter, r *http.Re
 		Hateoas:    links,
 	}
 
-	utils.JSONResponse(w, resources, meta, http.StatusOK)
+	response := utils.Response{
+		Data: resources,
+		Meta: meta,
+	}
+
+	//generate response with eTag
+	payload, err := json.Marshal(response)
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
+
+	eTag := utils.GenerateETag(payload)
+
+	ifNoneMatch := strings.TrimPrefix(strings.Trim(r.Header.Get("If-None-Match"), "\""), "W/")
+	actualEtag := strings.TrimPrefix(eTag, "W/")
+	if ifNoneMatch == strings.Trim(actualEtag, "\"") {
+		w.Header().Set("ETag", eTag)
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("ETag", eTag)
+	w.WriteHeader(http.StatusOK)
+	_, err = fmt.Fprint(w, string(payload))
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
 }
 
 func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request) {
@@ -128,7 +158,36 @@ func (h CategoryHandler) GetCategoryById(w http.ResponseWriter, r *http.Request)
 		AddPatch("update", fmt.Sprintf(entities.CategoryUpdate, category.Id.String())).
 		Build()
 
-	utils.JSONResponse(w, category, links, http.StatusOK)
+	response := utils.Response{
+		Data: category,
+		Meta: links,
+	}
+
+	//generate response with eTag
+	payload, err := json.Marshal(response)
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
+
+	eTag := utils.GenerateETag(payload)
+
+	ifNoneMatch := strings.TrimPrefix(strings.Trim(r.Header.Get("If-None-Match"), "\""), "W/")
+	actualEtag := strings.TrimPrefix(eTag, "W/")
+	if ifNoneMatch == strings.Trim(actualEtag, "\"") {
+		w.Header().Set("ETag", eTag)
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("ETag", eTag)
+	w.WriteHeader(http.StatusOK)
+	_, err = fmt.Fprint(w, string(payload))
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
 }
 
 func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Request) {
@@ -174,7 +233,35 @@ func (h CategoryHandler) GetCategoriesByIds(w http.ResponseWriter, r *http.Reque
 		resources[index] = resource
 	}
 
-	utils.JSONResponse(w, resources, nil, http.StatusOK)
+	response := utils.Response{
+		Data: resources,
+	}
+
+	//generate response with eTag
+	payload, err := json.Marshal(response)
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
+
+	eTag := utils.GenerateETag(payload)
+
+	ifNoneMatch := strings.TrimPrefix(strings.Trim(r.Header.Get("If-None-Match"), "\""), "W/")
+	actualEtag := strings.TrimPrefix(eTag, "W/")
+	if ifNoneMatch == strings.Trim(actualEtag, "\"") {
+		w.Header().Set("ETag", eTag)
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("ETag", eTag)
+	w.WriteHeader(http.StatusOK)
+	_, err = fmt.Fprint(w, string(payload))
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
 }
 
 func (h CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
@@ -332,5 +419,33 @@ func (h CategoryHandler) GetAllProductsByCategory(w http.ResponseWriter, r *http
 		resources[index] = resource
 	}
 
-	utils.JSONResponse(w, resources, nil, http.StatusOK)
+	response := utils.Response{
+		Data: resources,
+	}
+
+	//generate response with eTag
+	payload, err := json.Marshal(response)
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
+
+	eTag := utils.GenerateETag(payload)
+
+	ifNoneMatch := strings.TrimPrefix(strings.Trim(r.Header.Get("If-None-Match"), "\""), "W/")
+	actualEtag := strings.TrimPrefix(eTag, "W/")
+	if ifNoneMatch == strings.Trim(actualEtag, "\"") {
+		w.Header().Set("ETag", eTag)
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("ETag", eTag)
+	w.WriteHeader(http.StatusOK)
+	_, err = fmt.Fprint(w, string(payload))
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
 }

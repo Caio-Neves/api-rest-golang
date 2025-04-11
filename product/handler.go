@@ -10,6 +10,7 @@ import (
 	"rest-api-example/entities"
 	"rest-api-example/utils"
 	"strconv"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -94,7 +95,36 @@ func (h ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 		Hateoas:    links,
 	}
 
-	utils.JSONResponse(w, resources, meta, http.StatusOK)
+	response := utils.Response{
+		Data: resources,
+		Meta: meta,
+	}
+
+	//generate response with eTag
+	payload, err := json.Marshal(response)
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
+
+	eTag := utils.GenerateETag(payload)
+
+	ifNoneMatch := strings.TrimPrefix(strings.Trim(r.Header.Get("If-None-Match"), "\""), "W/")
+	actualEtag := strings.TrimPrefix(eTag, "W/")
+	if ifNoneMatch == strings.Trim(actualEtag, "\"") {
+		w.Header().Set("ETag", eTag)
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("ETag", eTag)
+	w.WriteHeader(http.StatusOK)
+	_, err = fmt.Fprint(w, string(payload))
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
 }
 
 func (h ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
@@ -121,7 +151,37 @@ func (h ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 		AddDelete("delete", fmt.Sprintf(entities.ProductDelete, product.Id.String())).
 		AddPatch("update", fmt.Sprintf(entities.ProductUpdate, product.Id.String())).
 		Build()
-	utils.JSONResponse(w, product, links, http.StatusOK)
+
+	response := utils.Response{
+		Data: product,
+		Meta: links,
+	}
+
+	//generate response with eTag
+	payload, err := json.Marshal(response)
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
+
+	eTag := utils.GenerateETag(payload)
+
+	ifNoneMatch := strings.TrimPrefix(strings.Trim(r.Header.Get("If-None-Match"), "\""), "W/")
+	actualEtag := strings.TrimPrefix(eTag, "W/")
+	if ifNoneMatch == strings.Trim(actualEtag, "\"") {
+		w.Header().Set("ETag", eTag)
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("ETag", eTag)
+	w.WriteHeader(http.StatusOK)
+	_, err = fmt.Fprint(w, string(payload))
+	if err != nil {
+		utils.JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
+	}
 }
 
 func (h ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {

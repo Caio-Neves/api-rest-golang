@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"rest-api-example/entities"
@@ -23,6 +26,13 @@ type PaginationMeta struct {
 	entities.Hateoas
 }
 
+func GenerateETag(payload []byte) string {
+	h := sha256.New()
+	h.Write([]byte(payload))
+	hash := hex.EncodeToString(h.Sum(nil))
+	return fmt.Sprintf("\"%s\"", hash)
+}
+
 func GetQueryInt(query url.Values, key string, defaultValue int) int {
 	if value := query.Get(key); value != "" {
 		if intValue, err := strconv.Atoi(value); err == nil {
@@ -33,11 +43,27 @@ func GetQueryInt(query url.Values, key string, defaultValue int) int {
 }
 
 func JSONError(w http.ResponseWriter, err error) {
+	op := "utils.JSONError()"
+
 	e, ok := err.(*entities.Error)
 	if !ok {
 		e = entities.NewInternalServerErrorError(err, "Unhandled error")
 	}
 
+	entry := log.WithFields(log.Fields{
+		"code":      e.Code,
+		"error":     e.Err.Error(),
+		"operation": e.Operation,
+		"message":   e.Message,
+	})
+
+	if e.Code != entities.INTERNAL_SERVER_ERROR {
+		entry.Info()
+	} else {
+		entry.Error()
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	switch e.Code {
 	case entities.BAD_REQUEST:
 		w.WriteHeader(http.StatusBadRequest)
@@ -58,22 +84,11 @@ func JSONError(w http.ResponseWriter, err error) {
 	case entities.NOT_ACCEPTABLE:
 		w.WriteHeader(http.StatusNotAcceptable)
 	}
-
-	entry := log.WithFields(log.Fields{
-		"code":      e.Code,
-		"error":     e.Err.Error(),
-		"operation": e.Operation,
-		"message":   e.Message,
-	})
-
-	if e.Code != entities.INTERNAL_SERVER_ERROR {
-		entry.Info()
-	} else {
-		entry.Error()
+	err = json.NewEncoder(w).Encode(err)
+	if err != nil {
+		JSONError(w, entities.NewInternalServerErrorError(err, op))
+		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(err)
 }
 
 func JSONResponse(w http.ResponseWriter, data any, meta any, statusCode int) {

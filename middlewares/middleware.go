@@ -31,7 +31,7 @@ func ValidadeAcceptHeader(acceptContents []string, next http.HandlerFunc) http.H
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		op := "middlewares.ValidadeAcceptHeader()"
 		acceptRequest := strings.TrimSpace(r.Header.Get("Accept"))
-		if slices.Contains(acceptContents, acceptRequest) || acceptRequest == "" {
+		if slices.Contains(acceptContents, acceptRequest) || acceptRequest == "" || acceptRequest == "*/*" {
 			next.ServeHTTP(w, r)
 			return
 		}
