@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 	"rest-api-example/category"
 	"rest-api-example/config"
 	"rest-api-example/product"
 	"rest-api-example/routes"
+	"syscall"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -59,6 +64,24 @@ func main() {
 		Handler:      r,
 		ErrorLog:     nil,
 	}
-	log.Info("Server started on port 8080")
-	server.ListenAndServe()
+	log.Info("Server configured")
+
+	go func() {
+		if err := server.ListenAndServe(); errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("Server closed under request: %v", err)
+		}
+		log.Println("Stopped serving new connections.")
+	}()
+
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM)
+
+	<-s
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("Server shutdown failed: %v", err)
+	}
+	log.Info("Server shutdown gracefully")
 }
