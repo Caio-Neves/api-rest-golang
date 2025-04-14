@@ -67,7 +67,7 @@ func main() {
 	log.Info("Server configured")
 
 	go func() {
-		if err := server.ListenAndServe(); errors.Is(err, http.ErrServerClosed) {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Server closed under request: %v", err)
 		}
 		log.Println("Stopped serving new connections.")
