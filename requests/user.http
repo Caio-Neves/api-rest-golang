@@ -1,11 +1,11 @@
 @apirul = http://localhost:8080
 
-POST {{apirul}}/auth/register HTTP/1.1
+POST {{apirul}}/users HTTP/1.1
 Content-Type: application/json
 
 {
-    "login": "nevescaioneves@gmail.com",
-    "password": "caio1234"
+    "login": "testenovo123",
+    "password": "123121312"
 }
 
 ###
@@ -14,8 +14,8 @@ POST {{apirul}}/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
-    "login": "nevescaioneves@gmail.com",
-    "password": "caio1234"
+    "login": "testenovo123",
+    "password": "123121312"
 }
 
 ###
