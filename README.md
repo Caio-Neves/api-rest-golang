@@ -22,12 +22,18 @@ Este projeto é uma API RESTful escrita em Go, onde decidi aprofundar meus conhe
 - Redução de consumo de banda e carga de processamento
 
 ### 🪵 Logs estruturados utilizando [slog](https://github.com/sirupsen/logrus) com rotação automática usando [Lumberjack](https://github.com/natefinch/lumberjack)
+
+### 🔐 Autenticação com JWT
+
+- Implementado fluxo de autenticação via JWT 
+- Atualmente implementado
+  - Cadastro de usuários
+  - Rotas para login e atualização do par de tokens
+  - Middleware para validação do token nas rotas administrativas
+
 ---
 
 ## 📌 Em andamento / Próximos passos
-
-- 🔐 **Conceito de ser stateless**  
-  Implementar autenticação via token (JWT ou Paseto) para garantir segurança sem manter estado no servidor.
 
 - 🚀 **Deploy como serviço (Windows/Linux)**  
   Utilizar o [Kardianos/service](https://github.com/kardianos/service) para rodar a API como serviço nativo do sistema operacional.
