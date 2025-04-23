@@ -4,11 +4,13 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"rest-api-example/entities"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -24,6 +26,15 @@ type PaginationMeta struct {
 	TotalPages int `json:"totalPages"`
 	Results    int `json:"results"`
 	entities.Hateoas
+}
+
+func GetBearerToken(r *http.Request) (string, error) {
+	op := "utils.GetBearerToken()"
+	token := strings.TrimSpace(strings.ReplaceAll(r.Header.Get("Authorization"), "Bearer ", ""))
+	if token == "" {
+		return "", entities.NewUnauthorizedError(errors.New("token not found"), "token not found", op)
+	}
+	return token, nil
 }
 
 func GenerateETag(payload []byte) string {

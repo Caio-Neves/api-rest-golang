@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"rest-api-example/auth"
 	"rest-api-example/category"
 	"rest-api-example/config"
 	"rest-api-example/product"
-	"rest-api-example/routes"
+	"rest-api-example/user"
 	"syscall"
 	"time"
 
@@ -40,22 +41,28 @@ func main() {
 	defer dbInstance.Close()
 	log.Info("Database connection established")
 
-	categoryRepository := category.NewCategoryRepositoryPostgres(dbInstance)
-	productRepository := product.NewProductRepositoryPostgres(dbInstance)
-	log.Info("Successful setup of repositories")
-
-	categoryService := category.NewCategoryService(categoryRepository)
-	productService := product.NewProductService(productRepository, categoryRepository)
-	log.Info("Successful setup of services")
-
-	categoryHandler := category.NewCategoryHandler(categoryService)
-	productHandler := product.NewProductHandler(productService)
-	log.Info("Successful setup of handlers")
-
 	r := mux.NewRouter()
-	routes.SetupProductsRoutes(r, productHandler)
-	routes.SetupCategoriesRoutes(r, categoryHandler)
-	log.Info("Routes initialized")
+
+	userRepository := user.NewUserRepository(dbInstance)
+	userService := user.NewUserService(userRepository)
+	userHandler := user.NewUserHandler(userService)
+	user.SetupUserRoutes(r, userHandler)
+
+	authService := auth.NewAuthService(userRepository, os.Getenv("SECRET_KEY"))
+	authHandler := auth.NewAuthHandler(authService)
+	auth.SetupAuthRoutes(r, authHandler, userHandler)
+
+	categoryRepository := category.NewCategoryRepositoryPostgres(dbInstance)
+	categoryService := category.NewCategoryService(categoryRepository)
+	categoryHandler := category.NewCategoryHandler(categoryService)
+	category.SetupCategoriesRoutes(r, categoryHandler, authService)
+
+	productRepository := product.NewProductRepositoryPostgres(dbInstance)
+	productService := product.NewProductService(productRepository, categoryRepository)
+	productHandler := product.NewProductHandler(productService)
+	product.SetupProductsRoutes(r, productHandler, authService)
+
+	log.Info("Successfully initialized all system layers")
 
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.Port),

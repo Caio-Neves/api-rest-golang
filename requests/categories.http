@@ -23,7 +23,7 @@ Accept: application/json
 
 POST {{apirul}}/admin/categories HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer ACCESS-TOKEN
+Authorization: Bearer 
 Accept: application/json
 
 {

@@ -1,0 +1,28 @@
+@apirul = http://localhost:8080
+
+POST {{apirul}}/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "login": "nevescaioneves@gmail.com",
+    "password": "caio1234"
+}
+
+###
+
+POST {{apirul}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "login": "nevescaioneves@gmail.com",
+    "password": "caio1234"
+}
+
+###
+
+POST {{apirul}}/auth/refresh HTTP/1.1
+Content-Type: application/json
+
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDUzNzM1MTgsImlhdCI6MTc0NTM2NjMxOCwiaXNzIjoiZWNvbWFwaSIsInN1YiI6Im5ldmVzY2Fpb25ldmVzQGdtYWlsLmNvbSIsInR5cGUiOiJyZWZyZXNoX3Rva2VuIn0.Nl_tPpEULvE7XASdsxv9YSrViJK7xiaVcHAP4YyQ2Yg"
+}

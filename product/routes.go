@@ -1,21 +1,22 @@
-package routes
+package product
 
 import (
 	"net/http"
+	"rest-api-example/auth"
 	"rest-api-example/middlewares"
-	"rest-api-example/product"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
 
-func SetupProductsRoutes(mux *mux.Router, h product.ProductHandler) {
+func SetupProductsRoutes(mux *mux.Router, h ProductHandler, authService auth.AuthService) {
 	admin := mux.PathPrefix("/admin/products").Subrouter()
 	admin.Use(cors.New(cors.Options{
 		AllowedOrigins: []string{"http://127.0.0.1:5500"},
 		AllowedMethods: []string{"POST", "DELETE", "PATCH", "OPTIONS"},
 		AllowedHeaders: []string{"Authorization", "Content-Type"},
 	}).Handler)
+	admin.Use(authService.AuthenticationMiddleware)
 	admin.HandleFunc("",
 		middlewares.ValidateSupportedMediaTypes(([]string{"application/json"}),
 			middlewares.ValidadeAcceptHeader([]string{"application/json"}, h.CreateProduct))).Methods(http.MethodOptions,

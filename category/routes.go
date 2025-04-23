@@ -1,21 +1,22 @@
-package routes
+package category
 
 import (
 	"net/http"
-	"rest-api-example/category"
+	"rest-api-example/auth"
 	"rest-api-example/middlewares"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
 
-func SetupCategoriesRoutes(mux *mux.Router, h category.CategoryHandler) {
+func SetupCategoriesRoutes(mux *mux.Router, h CategoryHandler, authService auth.AuthService) {
 	admin := mux.PathPrefix("/admin/categories").Subrouter()
 	admin.Use(cors.New(cors.Options{
 		AllowedOrigins: []string{"http://127.0.0.1:5500"},
 		AllowedMethods: []string{"POST", "DELETE", "PATCH", "OPTIONS"},
 		AllowedHeaders: []string{"Authorization", "Content-Type"},
 	}).Handler)
+	admin.Use(authService.AuthenticationMiddleware)
 	admin.HandleFunc("",
 		middlewares.ValidateSupportedMediaTypes([]string{"application/json"},
 			middlewares.ValidadeAcceptHeader([]string{"application/json"}, h.CreateCategory))).Methods(http.MethodOptions,

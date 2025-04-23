@@ -3,6 +3,8 @@ package user
 import (
 	"context"
 	"rest-api-example/entities"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
@@ -13,14 +15,12 @@ func NewUserService(u entities.UserInterface) UserService {
 	return UserService{u}
 }
 
-func (u UserService) Login(ctx context.Context, credentials entities.Credentials) (bool, error) {
-	auth, err := u.userRepository.CheckUserCredentials(ctx, credentials)
-	if err != nil {
-		return false, err
-	}
-	return auth, nil
-}
-
 func (u UserService) Registry(ctx context.Context, credentials entities.Credentials) error {
-	return u.userRepository.RegistryUser(ctx, credentials)
+	op := "UserService.Registry()"
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return entities.NewInternalServerErrorError(err, op)
+	}
+	credentials.Password = string(hashedPass)
+	return u.userRepository.InsertUser(ctx, credentials)
 }
