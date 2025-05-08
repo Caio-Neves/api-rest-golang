@@ -13,6 +13,7 @@ type Config struct {
 	BaseUrl                string `toml:"baseUrl"`
 	SqlServerDatabase      SqlServerDBConfig
 	PostgresServerDatabase PostgresSqlDBConfig
+	ServiceSettings        ServiceSettings
 }
 
 func ReadConfigFile(path string) (*Config, error) {

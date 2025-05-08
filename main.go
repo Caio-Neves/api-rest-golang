@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"rest-api-example/config"
 	"rest-api-example/product"
 	"rest-api-example/user"
-	"syscall"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -22,9 +23,21 @@ import (
 )
 
 func main() {
-	cfg, err := config.ReadConfigFile("./config/config.toml")
+	action := flag.String("action", "run", "defines action to perform: install, uninstall, run, stop")
+	configDir := flag.String("configs", os.Getenv("ECOM_CONFIG_DIR"), "path to config directory")
+	flag.Parse()
+
+	if configDir == nil || *configDir == "" {
+		panic("Config directory is not set")
+	}
+
+	cfg, err := config.ReadConfigFile(*configDir)
 	if err != nil {
 		panic(err)
+	}
+
+	if cfg.ServiceSettings.Name == "" || cfg.ServiceSettings.DisplayName == "" || cfg.ServiceSettings.Description == "" {
+		panic("Service settings are not set in the config file")
 	}
 
 	log.SetOutput(&lumberjack.Logger{
@@ -61,7 +74,6 @@ func main() {
 	productService := product.NewProductService(productRepository, categoryRepository)
 	productHandler := product.NewProductHandler(productService)
 	product.SetupProductsRoutes(r, productHandler, authService)
-
 	log.Info("Successfully initialized all system layers")
 
 	server := &http.Server{
@@ -71,8 +83,26 @@ func main() {
 		Handler:      r,
 		ErrorLog:     nil,
 	}
-	log.Info("Server configured")
 
+	program := &program{
+		server:          server,
+		serviceSettings: cfg.ServiceSettings,
+	}
+
+	var args []string
+	for _, arg := range os.Args[1:] {
+		if !strings.HasPrefix(arg, "-action") {
+			args = append(args, strings.Trim(arg, `"`))
+		}
+	}
+
+	err = program.SetupServerWindows(*action, args)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func InitWebApplication(server *http.Server) {
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Server closed under request: %v", err)
@@ -81,7 +111,7 @@ func main() {
 	}()
 
 	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(s, os.Interrupt)
 
 	<-s
 
